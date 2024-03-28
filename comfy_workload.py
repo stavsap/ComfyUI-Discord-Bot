@@ -102,6 +102,9 @@ class WorkflowHandler:
                 'steps': self._steps,
                 'seed': self._seed,
                 'cfg': self._cfg,
+                'ckpt': self._ckpt,
+                'schd': self._schd,
+                'sampler': self._sampler,
             }
         self.workflow_as_text = workflow_as_text
         self.FLAG_REGEX = r'--(\w+)\s+([^\s]+)'
@@ -119,7 +122,7 @@ class WorkflowHandler:
 
         self._res("768:768", prompt)
         self._batch("1", prompt)
-        self._steps("50", prompt)
+        self._steps("25", prompt)
         self._cfg("7", prompt)
         self._seed(str(random.randint(1, 2 ** 64)), prompt)
 
@@ -145,6 +148,31 @@ batch: {batch}
 resolution: {res}
 '''
         return description
+
+    def info(self):
+        return f'''
+workflow: {self.key()} 
+
+supported flags:
+
+--res: Y:X, where Y is height and X is width. 768:768 if not present.
+
+--cfg: the CFG value, 7 if not present.
+
+--steps: # of steps, 25 if not present.
+
+--seed: seed value, random if not present.
+
+--batch: the batch size, 1 if not present.
+
+--ckpt: the checkpoint to use, sdxl\\\Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors if not present.
+
+--schd: the scheduler to use, normal if not present.
+
+--sampler: the sampler to use, euler if not present.
+'''
+    def key(self):
+        return "BASIC"
     def _res(self, value, workflow):
         split = value.split(':')
         workflow["5"]["inputs"]["height"] = split[0]
@@ -162,6 +190,14 @@ resolution: {res}
     def _cfg(self, value, workflow):
         workflow["3"]["inputs"]["cfg"] = value
 
+    def _ckpt(self, value, workflow):
+        workflow["4"]["inputs"]["ckpt_name"] = value
+
+    def _sampler(self, value, workflow):
+        workflow["3"]["inputs"]["sampler_name"] = value
+
+    def _schd(self, value, workflow):
+        workflow["3"]["inputs"]["scheduler"] = value
     def _clean_from_flags(self, text):
         return re.sub(self.FLAG_REGEX, '', text).strip()
 

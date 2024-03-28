@@ -90,6 +90,11 @@ async def on_message(message):
 async def ping(ctx):
     await ctx.respond("pong")
 
+@bot.slash_command(name="info", guild=discord.Object(id=1111))
+async def info(ctx):
+    prompt_handler = get_workflow_handler()
+    await ctx.respond(prompt_handler.info())
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
