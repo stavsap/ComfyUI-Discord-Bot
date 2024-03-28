@@ -70,6 +70,16 @@ async def on_message(message):
                 await message.channel.send("", file=img)
 
         await message.channel.send("All complete")
+        # async def rerun(interaction):
+        #     print(interaction.custom_id)
+        #     await interaction.response.send_message("")
+        #
+        # view = View()
+        # btn = Button(label="Again!", style=discord.ButtonStyle.green, custom_id="test_button")
+        # btn.callback = rerun
+        # view.add_item(btn)
+        # await message.channel.send("", view=view)
+
         # # Open the image file
         # with open("example.png", "rb") as f:
         #     picture = discord.File(f)
