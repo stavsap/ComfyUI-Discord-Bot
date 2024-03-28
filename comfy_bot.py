@@ -99,8 +99,9 @@ async def info(ctx):
 
 @bot.slash_command(name="checkpoints", guild=discord.Object(id=1111), description="list of all supported checkpoints")
 async def info(ctx):
+    checkpoints = get_checkpoints()["CheckpointLoaderSimple"]["input"]["required"]["ckpt_name"][0]
     response = ""
-    for checkpoint in get_checkpoints():
+    for checkpoint in checkpoints:
         response += checkpoint + "\n"
     await ctx.respond(response)
 
