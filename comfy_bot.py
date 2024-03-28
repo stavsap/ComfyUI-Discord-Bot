@@ -5,10 +5,23 @@ from discord import File
 from discord.ext import commands
 import websocket
 import uuid
+
+from discord.ui import View, Button
+
 from comfy_client import get_images, CLIENT_ID, SERVER_ADDRESS
 from comfy_workload import get_workflow_handler
 
-# set a sub set intents of what is allowed for the bot from its application config.
+class MyView(discord.ui.View):
+    @discord.ui.button(label="Button 1", row=0, style=discord.ButtonStyle.primary)
+    async def first_button_callback(self, button, interaction):
+        await interaction.response.send_message("You pressed me!")
+
+    @discord.ui.button(label="Button 2", row=1, style=discord.ButtonStyle.primary)
+    async def second_button_callback(self, button, interaction):
+        await interaction.response.send_message("You pressed me!")
+
+
+
 intents = discord.Intents.default()
 intents.dm_messages = True
 bot = commands.Bot(intents=intents, command_prefix="/")
@@ -18,11 +31,16 @@ bot = commands.Bot(intents=intents, command_prefix="/")
 async def on_ready():
     print(f'Logged in as {bot.user.name} bot.')
 
+async def print_button(interaction):
+    print(interaction.custom_id)
+    await interaction.response.send_message("You pressed me!")
 @bot.event
 async def on_message(message):
     # Check if the message is from a user and not the bot itself
     if message.author == bot.user:
         return
+
+
     if message.content.startswith("!help"):
         await message.channel.send("Hi, use !gen to get a picture")
     # Check if the message starts with a specific command or trigger
@@ -54,8 +72,14 @@ async def on_message(message):
         # # Send the message with the picture attached
         # await message.channel.send("Here's a picture!", file=picture)
 
+    # experimental
+    if message.content == '!button':
+        view = View()
+        btn = Button(label="Click Me!", style=discord.ButtonStyle.green, custom_id="test_button")
+        btn.callback = print_button
+        view.add_item(btn)
+        await message.channel.send("Here's a buttons!", view=view)
 
-# Command to get a pong response for slash command 'ping', the guild id is the id of the server that bot in, remove it to update all.
 @bot.slash_command(name="ping", guild=discord.Object(id=1111))
 async def ping(ctx):
     await ctx.respond("pong")
