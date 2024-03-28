@@ -8,7 +8,7 @@ import uuid
 from discord.ui import View, Button
 
 from comfy_client import get_images, CLIENT_ID, SERVER_ADDRESS, get_checkpoints
-from comfy_workload_handlers import get_current_workload_handler
+from comfy_workload_handlers import get_current_workload_handler, get_handlers
 
 
 class MyView(discord.ui.View):
@@ -98,11 +98,19 @@ async def info(ctx):
     await ctx.respond(prompt_handler.info())
 
 @bot.slash_command(name="checkpoints", guild=discord.Object(id=1111), description="list of all supported checkpoints")
-async def info(ctx):
+async def checkpoints(ctx):
     checkpoints = get_checkpoints()["CheckpointLoaderSimple"]["input"]["required"]["ckpt_name"][0]
-    response = ""
+    response = "Supported Checkpoints:\n\n"
     for checkpoint in checkpoints:
         response += checkpoint + "\n"
+    await ctx.respond(response)
+
+@bot.slash_command(name="handlers", guild=discord.Object(id=1111), description="list of all handlers")
+async def handlers(ctx):
+    handlers = get_handlers()
+    response = "Supported Handlers:\n\n"
+    for handler in handlers:
+        response += handler + "\n"
     await ctx.respond(response)
 
 # Press the green button in the gutter to run the script.

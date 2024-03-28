@@ -16,3 +16,6 @@ handlers = {instance.key(): instance}
 
 def get_current_workload_handler():
     return handlers[CURRENT_HANDLER_KEY]
+
+def get_handlers():
+    return handlers.keys()
