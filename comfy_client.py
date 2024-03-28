@@ -26,6 +26,9 @@ def get_history(prompt_id):
     with urllib.request.urlopen("http://{}/history/{}".format(SERVER_ADDRESS, prompt_id)) as response:
         return json.loads(response.read())
 
+def get_checkpoints():
+    with urllib.request.urlopen("http://{}/object_info/CheckpointLoaderSimple".format(SERVER_ADDRESS)) as response:
+        return json.loads(response.read())
 
 def get_images(ws, prompt):
     prompt_id = queue_prompt(prompt)['prompt_id']
