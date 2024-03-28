@@ -1,15 +1,12 @@
 import os
-import random
 import io
-
 import discord
 from discord import File
 from discord.ext import commands
-import websocket #NOTE: websocket-client (https://github.com/websocket-client/websocket-client)
+import websocket
 import uuid
-import json
 from comfy_client import get_images, CLIENT_ID, SERVER_ADDRESS
-from comfy_workload import prompt_text_ws
+from comfy_workload import get_workflow_handler
 
 # set a sub set intents of what is allowed for the bot from its application config.
 intents = discord.Intents.default()
@@ -26,20 +23,15 @@ async def on_message(message):
     # Check if the message is from a user and not the bot itself
     if message.author == bot.user:
         return
-    if message.content.startswith("!hello"):
+    if message.content.startswith("!help"):
         await message.channel.send("Hi, use !gen to get a picture")
     # Check if the message starts with a specific command or trigger
     if message.content.startswith("!gen"):
-        prompt = json.loads(prompt_text_ws)
-        # set the text prompt for our positive CLIPTextEncode
-        # prompt["6"]["inputs"]["text"] = "a legendary dragon, fantasy, digital painting, action shot, masterpiece, 4k"
-        prompt["6"]["inputs"]["text"] = message.content[len("!gen "):]
 
-        # set the seed for our KSampler node
-        prompt["3"]["inputs"]["seed"] = random.randint(1, 2**64)
-        prompt["3"]["inputs"]["steps"] = 50
+        prompt = get_workflow_handler().handle(message.content[len("!gen "):])
 
         ws = websocket.WebSocket()
+
         ws.connect("ws://{}/ws?clientId={}".format(SERVER_ADDRESS, CLIENT_ID))
 
         await message.channel.send("queueing generation, seed: "+str(prompt["3"]["inputs"]["seed"])+" with 50 steps")

@@ -1,3 +1,7 @@
+import json
+import random
+import re
+
 prompt_text = """
 {
     "3": {
@@ -174,3 +178,46 @@ prompt_text_ws = """
     }
 }
 """
+
+def get_workflow_handler():
+    return WorkflowHandler(workflow_as_text=prompt_text_ws)
+
+
+class WorkflowHandler:
+    def __init__(self, workflow_as_text):
+        self.flags_dic = {
+                'res': self._res
+            }
+        self.workflow_as_text = workflow_as_text
+        self.FLAG_REGEX = r'--(\w+)\s+([^\s]+)'
+
+    def handle(self, message):
+        prompt = json.loads(self.workflow_as_text)
+
+        flags = self._extract_flags(message)
+
+        positive_prompt = self._clean_from_flags(message)
+
+        # set the text prompt for our positive CLIPTextEncode
+        # prompt["6"]["inputs"]["text"] = "a legendary dragon, fantasy, digital painting, action shot, masterpiece, 4k"
+        prompt["6"]["inputs"]["text"] = positive_prompt
+        # set the seed for our KSampler node
+        prompt["3"]["inputs"]["seed"] = random.randint(1, 2 ** 64)
+        prompt["3"]["inputs"]["steps"] = 50
+
+        for flagTuple in flags:
+            self.flags_dic[flagTuple[0]](flagTuple[1], prompt)
+            pass
+
+        return prompt
+
+    def _res(self, value, workflow):
+        split = value.split(':')
+        workflow["5"]["inputs"]["height"] = split[0]
+        workflow["5"]["inputs"]["width"] = split[1]
+
+    def _clean_from_flags(self, text):
+        return re.sub(self.FLAG_REGEX, '', text).strip()
+
+    def _extract_flags(self, text):
+        return re.findall(self.FLAG_REGEX, text)
