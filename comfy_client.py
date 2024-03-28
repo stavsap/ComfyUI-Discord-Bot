@@ -36,10 +36,12 @@ def get_checkpoints():
     with urllib.request.urlopen("http://{}/object_info/CheckpointLoaderSimple".format(SERVER_ADDRESS)) as response:
         return json.loads(response.read())
 
-async def get_images(ws, prompt, channel=None):
+async def get_images(ws, prompt, channel=None, prompt_handler=None):
     prompt_id = queue_prompt(prompt)['prompt_id']
     if channel is not None:
         await channel.send("queueing generation! id: " + prompt_id)
+    if prompt_handler is not None:
+        await channel.send(prompt_handler.describe(prompt))
     output_images = {}
     current_node = ""
     while True:

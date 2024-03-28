@@ -128,7 +128,21 @@ class WorkflowHandler:
             pass
 
         return prompt
+    def describe(self, prompt):
+        seed = prompt["3"]["inputs"]["seed"]
+        cfg = prompt["3"]["inputs"]["cfg"]
+        checkpoint = prompt["4"]["inputs"]["ckpt_name"]
+        batch = prompt["5"]["inputs"]["batch_size"]
+        res = prompt["5"]["inputs"]["height"] + ":" + prompt["5"]["inputs"]["width"]
 
+        description = f'''
+checkpoint: {checkpoint}
+cfg: {cfg}
+seed: {seed}
+batch: {batch}
+resolution: {res}
+'''
+        return description
     def _res(self, value, workflow):
         split = value.split(':')
         workflow["5"]["inputs"]["height"] = split[0]

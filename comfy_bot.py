@@ -49,7 +49,8 @@ async def on_message(message):
     # Check if the message starts with a specific command or trigger
     if message.content.startswith("!gen"):
 
-        prompt = get_workflow_handler().handle(message.content[len("!gen "):])
+        prompt_handler = get_workflow_handler()
+        prompt = prompt_handler.handle(message.content[len("!gen "):])
 
         ws = websocket.WebSocket()
 
@@ -58,7 +59,7 @@ async def on_message(message):
         # await message.channel.send(
         #     "queueing generation, seed: " + str(prompt["3"]["inputs"]["seed"]) + " with 50 steps")
 
-        images = await get_images(ws, prompt, message.channel)
+        images = await get_images(ws, prompt, message.channel, prompt_handler)
 
         for node_id, image_list in images.items():
 
