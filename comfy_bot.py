@@ -3,12 +3,11 @@ import io
 import discord
 from discord import File
 from discord.ext import commands
-import websocket
 import uuid
 
 from discord.ui import View, Button
 
-from comfy_client import get_images, CLIENT_ID, SERVER_ADDRESS
+from comfy_client import get_images, CLIENT_ID, SERVER_ADDRESS, get_checkpoints
 from comfy_workload_handlers import get_current_workload_handler
 
 
@@ -52,14 +51,7 @@ async def on_message(message):
         prompt_handler = get_current_workload_handler()
         prompt = prompt_handler.handle(message.content[len("!gen "):])
 
-        ws = websocket.WebSocket()
-
-        ws.connect("ws://{}/ws?clientId={}".format(SERVER_ADDRESS, CLIENT_ID))
-
-        # await message.channel.send(
-        #     "queueing generation, seed: " + str(prompt["3"]["inputs"]["seed"]) + " with 50 steps")
-
-        images = await get_images(ws, prompt, message.channel, prompt_handler)
+        images = await get_images(prompt, message.channel, prompt_handler)
 
         for node_id, image_list in images.items():
 
@@ -105,6 +97,12 @@ async def info(ctx):
     prompt_handler = get_current_workload_handler()
     await ctx.respond(prompt_handler.info())
 
+@bot.slash_command(name="checkpoints", guild=discord.Object(id=1111), description="list of all supported checkpoints")
+async def info(ctx):
+    response = ""
+    for checkpoint in get_checkpoints():
+        response += checkpoint + "\n"
+    await ctx.respond(response)
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':

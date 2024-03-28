@@ -4,6 +4,7 @@ import uuid
 import urllib.request
 import urllib.parse
 import os
+import websocket
 
 address = os.getenv('COMFY_UI_ADDRESS')
 
@@ -13,6 +14,11 @@ if address is not None:
     SERVER_ADDRESS = address
 
 CLIENT_ID = str(uuid.uuid4())
+
+WEB_SOCKET = websocket.WebSocket()
+
+WEB_SOCKET.connect("ws://{}/ws?clientId={}".format(SERVER_ADDRESS, CLIENT_ID))
+
 
 def queue_prompt(prompt):
     p = {"prompt": prompt, "client_id": CLIENT_ID}
@@ -32,11 +38,13 @@ def get_history(prompt_id):
     with urllib.request.urlopen("http://{}/history/{}".format(SERVER_ADDRESS, prompt_id)) as response:
         return json.loads(response.read())
 
+
 def get_checkpoints():
     with urllib.request.urlopen("http://{}/object_info/CheckpointLoaderSimple".format(SERVER_ADDRESS)) as response:
         return json.loads(response.read())
 
-async def get_images(ws, prompt, channel=None, prompt_handler=None):
+
+async def get_images(prompt, channel=None, prompt_handler=None):
     prompt_id = queue_prompt(prompt)['prompt_id']
     if channel is not None:
         await channel.send("queueing generation! id: " + prompt_id)
@@ -45,7 +53,7 @@ async def get_images(ws, prompt, channel=None, prompt_handler=None):
     output_images = {}
     current_node = ""
     while True:
-        out = ws.recv()
+        out = WEB_SOCKET.recv()
         # print(out)
         if isinstance(out, str):
             message = json.loads(out)
