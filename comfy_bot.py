@@ -9,7 +9,7 @@ import websocket #NOTE: websocket-client (https://github.com/websocket-client/we
 import uuid
 import json
 from comfy_client import get_images, CLIENT_ID, SERVER_ADDRESS
-from comfy_workloads import prompt_text_ws
+from comfy_workload import prompt_text_ws
 
 # set a sub set intents of what is allowed for the bot from its application config.
 intents = discord.Intents.default()
@@ -20,7 +20,6 @@ bot = commands.Bot(intents=intents, command_prefix="/")
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name} bot.')
-
 
 @bot.event
 async def on_message(message):
