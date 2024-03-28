@@ -3,10 +3,16 @@ from urllib import request, parse
 import uuid
 import urllib.request
 import urllib.parse
+import os
+
+address = os.getenv('COMFY_UI_ADDRESS')
 
 SERVER_ADDRESS = "127.0.0.1:8188"
-CLIENT_ID = str(uuid.uuid4())
 
+if address is not None:
+    SERVER_ADDRESS = address
+
+CLIENT_ID = str(uuid.uuid4())
 
 def queue_prompt(prompt):
     p = {"prompt": prompt, "client_id": CLIENT_ID}
@@ -30,8 +36,10 @@ def get_checkpoints():
     with urllib.request.urlopen("http://{}/object_info/CheckpointLoaderSimple".format(SERVER_ADDRESS)) as response:
         return json.loads(response.read())
 
-def get_images(ws, prompt):
+async def get_images(ws, prompt, channel=None):
     prompt_id = queue_prompt(prompt)['prompt_id']
+    if channel is not None:
+        await channel.send("queueing generation! id: " + prompt_id)
     output_images = {}
     current_node = ""
     while True:

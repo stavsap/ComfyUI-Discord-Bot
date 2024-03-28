@@ -55,10 +55,10 @@ async def on_message(message):
 
         ws.connect("ws://{}/ws?clientId={}".format(SERVER_ADDRESS, CLIENT_ID))
 
-        await message.channel.send(
-            "queueing generation, seed: " + str(prompt["3"]["inputs"]["seed"]) + " with 50 steps")
+        # await message.channel.send(
+        #     "queueing generation, seed: " + str(prompt["3"]["inputs"]["seed"]) + " with 50 steps")
 
-        images = get_images(ws, prompt)
+        images = await get_images(ws, prompt, message.channel)
 
         for node_id, image_list in images.items():
 

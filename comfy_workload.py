@@ -101,6 +101,7 @@ class WorkflowHandler:
                 'batch': self._batch,
                 'steps': self._steps,
                 'seed': self._seed,
+                'cfg': self._cfg,
             }
         self.workflow_as_text = workflow_as_text
         self.FLAG_REGEX = r'--(\w+)\s+([^\s]+)'

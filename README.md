@@ -4,6 +4,12 @@ The following is a project for private (can be public) Discord bot integrated wi
 
 Makes usage of [pycord](https://guide.pycord.dev/installation), also check [pycord github](https://github.com/Pycord-Development/pycord/)
 
+## 🚦 WIP 🚦
+
+<a href="https://www.buymeacoffee.com/stavsapq" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="30" width="150"></a>
+
+![pic](.meta/screenshot.png)
+
 ## Setup
 
 Install dependencies:
@@ -21,3 +27,7 @@ To run the bot after creating and obtaining the bot Token, set environment varia
 ```shell
 DISCORD_BOT_API_TOKEN=<your bot token>
 ```
+
+# Contribution
+
+If you want to contribute, feel free to fork and do a Pull Request. in the PR just describe in high level what is being merged.
