@@ -7,7 +7,7 @@ import uuid
 
 from discord.ui import View, Button
 
-from comfy_client import get_images, CLIENT_ID, SERVER_ADDRESS, get_checkpoints
+from comfy_client import get_images, get_checkpoints
 from comfy_workload_handlers import get_current_workload_handler, get_handlers
 
 
