@@ -19,7 +19,7 @@ bot = commands.Bot(intents=intents, command_prefix="/")
 # Event triggered when the bot is ready
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user.name}')
+    print(f'Logged in as {bot.user.name} bot.')
 
 
 @bot.event
@@ -39,8 +39,6 @@ async def on_message(message):
         # set the seed for our KSampler node
         prompt["3"]["inputs"]["seed"] = random.randint(1, 2**64)
         prompt["3"]["inputs"]["steps"] = 50
-
-
 
         ws = websocket.WebSocket()
         ws.connect("ws://{}/ws?clientId={}".format(SERVER_ADDRESS, CLIENT_ID))
