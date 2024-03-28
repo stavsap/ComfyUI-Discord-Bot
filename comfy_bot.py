@@ -11,6 +11,7 @@ from discord.ui import View, Button
 from comfy_client import get_images, CLIENT_ID, SERVER_ADDRESS
 from comfy_workload import get_workflow_handler
 
+
 class MyView(discord.ui.View):
     @discord.ui.button(label="Button 1", row=0, style=discord.ButtonStyle.primary)
     async def first_button_callback(self, button, interaction):
@@ -21,25 +22,27 @@ class MyView(discord.ui.View):
         await interaction.response.send_message("You pressed me!")
 
 
-
 intents = discord.Intents.default()
 intents.dm_messages = True
 bot = commands.Bot(intents=intents, command_prefix="/")
+
 
 # Event triggered when the bot is ready
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name} bot.')
 
+
 async def print_button(interaction):
     print(interaction.custom_id)
     await interaction.response.send_message("You pressed me!")
+
+
 @bot.event
 async def on_message(message):
     # Check if the message is from a user and not the bot itself
     if message.author == bot.user:
         return
-
 
     if message.content.startswith("!help"):
         await message.channel.send("Hi, use !gen to get a picture")
@@ -52,7 +55,8 @@ async def on_message(message):
 
         ws.connect("ws://{}/ws?clientId={}".format(SERVER_ADDRESS, CLIENT_ID))
 
-        await message.channel.send("queueing generation, seed: "+str(prompt["3"]["inputs"]["seed"])+" with 50 steps")
+        await message.channel.send(
+            "queueing generation, seed: " + str(prompt["3"]["inputs"]["seed"]) + " with 50 steps")
 
         images = get_images(ws, prompt)
 
@@ -80,9 +84,11 @@ async def on_message(message):
         view.add_item(btn)
         await message.channel.send("Here's a buttons!", view=view)
 
+
 @bot.slash_command(name="ping", guild=discord.Object(id=1111))
 async def ping(ctx):
     await ctx.respond("pong")
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':

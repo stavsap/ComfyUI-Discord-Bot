@@ -2,95 +2,6 @@ import json
 import random
 import re
 
-prompt_text = """
-{
-    "3": {
-        "class_type": "KSampler",
-        "inputs": {
-            "cfg": 8,
-            "denoise": 1,
-            "latent_image": [
-                "5",
-                0
-            ],
-            "model": [
-                "4",
-                0
-            ],
-            "negative": [
-                "7",
-                0
-            ],
-            "positive": [
-                "6",
-                0
-            ],
-            "sampler_name": "euler",
-            "scheduler": "normal",
-            "seed": 8566257,
-            "steps": 20
-        }
-    },
-    "4": {
-        "class_type": "CheckpointLoaderSimple",
-        "inputs": {
-            "ckpt_name": "sdxl\\\Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors"
-        }
-    },
-    "5": {
-        "class_type": "EmptyLatentImage",
-        "inputs": {
-            "batch_size": 1,
-            "height": 512,
-            "width": 512
-        }
-    },
-    "6": {
-        "class_type": "CLIPTextEncode",
-        "inputs": {
-            "clip": [
-                "4",
-                1
-            ],
-            "text": "masterpiece best quality girl"
-        }
-    },
-    "7": {
-        "class_type": "CLIPTextEncode",
-        "inputs": {
-            "clip": [
-                "4",
-                1
-            ],
-            "text": "bad hands"
-        }
-    },
-    "8": {
-        "class_type": "VAEDecode",
-        "inputs": {
-            "samples": [
-                "3",
-                0
-            ],
-            "vae": [
-                "4",
-                2
-            ]
-        }
-    },
-    "9": {
-        "class_type": "SaveImage",
-        "inputs": {
-            "filename_prefix": "ComfyBot-",
-            "images": [
-                "8",
-                0
-            ]
-        }
-    }
-}
-"""
-
 prompt_text_ws = """
 {
     "3": {
@@ -186,7 +97,10 @@ def get_workflow_handler():
 class WorkflowHandler:
     def __init__(self, workflow_as_text):
         self.flags_dic = {
-                'res': self._res
+                'res': self._res,
+                'batch': self._batch,
+                'steps': self._steps,
+                'seed': self._seed,
             }
         self.workflow_as_text = workflow_as_text
         self.FLAG_REGEX = r'--(\w+)\s+([^\s]+)'
@@ -201,9 +115,12 @@ class WorkflowHandler:
         # set the text prompt for our positive CLIPTextEncode
         # prompt["6"]["inputs"]["text"] = "a legendary dragon, fantasy, digital painting, action shot, masterpiece, 4k"
         prompt["6"]["inputs"]["text"] = positive_prompt
-        # set the seed for our KSampler node
-        prompt["3"]["inputs"]["seed"] = random.randint(1, 2 ** 64)
-        prompt["3"]["inputs"]["steps"] = 50
+
+        self._res("768:768", prompt)
+        self._batch("1", prompt)
+        self._steps("50", prompt)
+        self._cfg("7", prompt)
+        self._seed(str(random.randint(1, 2 ** 64)), prompt)
 
         for flagTuple in flags:
             self.flags_dic[flagTuple[0]](flagTuple[1], prompt)
@@ -215,6 +132,18 @@ class WorkflowHandler:
         split = value.split(':')
         workflow["5"]["inputs"]["height"] = split[0]
         workflow["5"]["inputs"]["width"] = split[1]
+
+    def _batch(self, value, workflow):
+        workflow["5"]["inputs"]["batch_size"] = value
+
+    def _steps(self, value, workflow):
+        workflow["3"]["inputs"]["steps"] = value
+
+    def _seed(self, value, workflow):
+        workflow["3"]["inputs"]["seed"] = value
+
+    def _cfg(self, value, workflow):
+        workflow["3"]["inputs"]["cfg"] = value
 
     def _clean_from_flags(self, text):
         return re.sub(self.FLAG_REGEX, '', text).strip()
