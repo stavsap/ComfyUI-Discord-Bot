@@ -91,11 +91,11 @@ prompt_text_ws = """
 """
 
 def get_workflow_handler():
-    return WorkflowHandler(workflow_as_text=prompt_text_ws)
+    return WorkflowHandler()
 
 
 class WorkflowHandler:
-    def __init__(self, workflow_as_text):
+    def __init__(self):
         self.flags_dic = {
                 'res': self._res,
                 'batch': self._batch,
@@ -106,7 +106,7 @@ class WorkflowHandler:
                 'schd': self._schd,
                 'sampler': self._sampler,
             }
-        self.workflow_as_text = workflow_as_text
+        self.workflow_as_text = prompt_text_ws
         self.FLAG_REGEX = r'--(\w+)\s+([^\s]+)'
 
     def handle(self, message):

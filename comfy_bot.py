@@ -9,7 +9,7 @@ import uuid
 from discord.ui import View, Button
 
 from comfy_client import get_images, CLIENT_ID, SERVER_ADDRESS
-from comfy_workload import get_workflow_handler
+from comfy_workload_handlers import get_current_workload_handler
 
 
 class MyView(discord.ui.View):
@@ -49,7 +49,7 @@ async def on_message(message):
     # Check if the message starts with a specific command or trigger
     if message.content.startswith("!gen"):
 
-        prompt_handler = get_workflow_handler()
+        prompt_handler = get_current_workload_handler()
         prompt = prompt_handler.handle(message.content[len("!gen "):])
 
         ws = websocket.WebSocket()
@@ -90,9 +90,9 @@ async def on_message(message):
 async def ping(ctx):
     await ctx.respond("pong")
 
-@bot.slash_command(name="info", guild=discord.Object(id=1111))
+@bot.slash_command(name="info", guild=discord.Object(id=1111), description="information of the current workflow handler")
 async def info(ctx):
-    prompt_handler = get_workflow_handler()
+    prompt_handler = get_current_workload_handler()
     await ctx.respond(prompt_handler.info())
 
 
