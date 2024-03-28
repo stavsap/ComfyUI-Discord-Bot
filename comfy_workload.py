@@ -130,6 +130,7 @@ class WorkflowHandler:
         return prompt
     def describe(self, prompt):
         seed = prompt["3"]["inputs"]["seed"]
+        steps = prompt["3"]["inputs"]["steps"]
         cfg = prompt["3"]["inputs"]["cfg"]
         checkpoint = prompt["4"]["inputs"]["ckpt_name"]
         batch = prompt["5"]["inputs"]["batch_size"]
@@ -138,6 +139,7 @@ class WorkflowHandler:
         description = f'''
 checkpoint: {checkpoint}
 cfg: {cfg}
+steps: {steps}
 seed: {seed}
 batch: {batch}
 resolution: {res}
