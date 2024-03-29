@@ -1,5 +1,5 @@
 import importlib
-
+import os
 from common import get_logger
 
 
@@ -33,7 +33,10 @@ class ComfyHandlersManager(object):
 
     def _import_all_handlers(self):
         self._import_handlers()
-        # TODO import custom folder
+        path = "custom_handlers"
+        directory_names = [name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))]
+        for name in directory_names:
+            self._import_handlers("{}.{}".format(path, name))
         self._logger.info("all handlers imported.")
 
     def set_current_handler(self, key):
