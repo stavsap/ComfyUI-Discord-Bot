@@ -62,22 +62,22 @@ async def on_message(message):
     if message.content.startswith("!help"):
         await message.channel.send("Hi, use '/' commands")
     # Check if the message starts with a specific command or trigger
-        # async def rerun(interaction):
-        #     print(interaction.custom_id)
-        #     await interaction.response.send_message("")
-        #
-        # view = View()
-        # btn = Button(label="Again!", style=discord.ButtonStyle.green, custom_id="test_button")
-        # btn.callback = rerun
-        # view.add_item(btn)
-        # await message.channel.send("", view=view)
+    # async def rerun(interaction):
+    #     print(interaction.custom_id)
+    #     await interaction.response.send_message("")
+    #
+    # view = View()
+    # btn = Button(label="Again!", style=discord.ButtonStyle.green, custom_id="test_button")
+    # btn.callback = rerun
+    # view.add_item(btn)
+    # await message.channel.send("", view=view)
 
-        # # Open the image file
-        # with open("example.png", "rb") as f:
-        #     picture = discord.File(f)
-        #
-        # # Send the message with the picture attached
-        # await message.channel.send("Here's a picture!", file=picture)
+    # # Open the image file
+    # with open("example.png", "rb") as f:
+    #     picture = discord.File(f)
+    #
+    # # Send the message with the picture attached
+    # await message.channel.send("Here's a picture!", file=picture)
 
 
 @bot.slash_command(name="q", description="Submit a prompt to current workflow handler")
@@ -97,14 +97,34 @@ async def prompt(ctx, message):
 
 @bot.slash_command(name="ref-set", description="Set a reference value")
 async def ref_set(ctx, ref, value):
+    if '#' in ref:
+        await ctx.respond("\# can`t be in the given ref name!")
+        return
+    if ' ' in ref:
+        await ctx.respond("white space can`t be in the given ref name!")
+        return
     ComfyHandlersContext().set_reference(ComfyHandlersManager().get_current_handler().key(), ref, value)
     await ctx.respond("Set #{}={}".format(ref, value))
 
 
 @bot.slash_command(name="ref-del", description="Remove a reference")
 async def ref_del(ctx, ref):
+    if '#' in ref:
+        await ctx.respond('\# can`t be in the given ref name!')
+        return
+    if ' ' in ref:
+        await ctx.respond("white space can`t be in the given ref name!")
+        return
     ComfyHandlersContext().remove_reference(ComfyHandlersManager().get_current_handler().key(), ref)
     await ctx.respond("Remove #{}".format(ref))
+
+
+@bot.slash_command(name="ref-view", description="View all references")
+async def ref_view(ctx):
+    respond = "Current references:"
+    for key, value in ComfyHandlersContext().get_reference(ComfyHandlersManager().get_current_handler().key()).items():
+        respond = "{}\n{} = {}".format(respond, key, value)
+    await ctx.respond(respond)
 
 
 @bot.slash_command(name="prefix", description="Set a prefix for the prompt")
@@ -129,6 +149,16 @@ async def remove_prefix(ctx):
 async def remove_postfix(ctx):
     ComfyHandlersContext().remove_postfix(ComfyHandlersManager().get_current_handler().key())
     await ctx.respond("Postfix removed")
+
+
+@bot.slash_command(name="prefix-view", description="View the current prompt prefix")
+async def remove_prefix(ctx):
+    await ctx.respond(ComfyHandlersContext().get_prefix(ComfyHandlersManager().get_current_handler().key()))
+
+
+@bot.slash_command(name="postfix-view", description="View the current prompt postfix")
+async def remove_postfix(ctx):
+    await ctx.respond(ComfyHandlersContext().get_postfix(ComfyHandlersManager().get_current_handler().key()))
 
 
 @bot.slash_command(name="info", guild=discord.Object(id=1111),
