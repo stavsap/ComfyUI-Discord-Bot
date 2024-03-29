@@ -21,6 +21,14 @@ def process_message(message):
     # TODO optimize by finding the hash tags and replace only them
     # hashtag_pattern = r'#\w+'
     # hashtags = re.findall(hashtag_pattern, message)
+
+    prefix = ComfyHandlersContext().get_prefix(ComfyHandlersManager().get_current_handler().key())
+    postfix = ComfyHandlersContext().get_postfix(ComfyHandlersManager().get_current_handler().key())
+    if prefix is not None:
+        message = "{} {}".format(prefix, message)
+    if postfix is not None:
+        message = "{} {}".format(message, postfix)
+
     refs = ComfyHandlersContext().get_reference(ComfyHandlersManager().get_current_handler().key())
     message = message + " "
     for key, value in refs.items():
@@ -90,6 +98,7 @@ async def on_message(message):
 async def prompt(ctx, message):
     prompt_handler = ComfyHandlersManager().get_current_handler()
     p = prompt_handler.handle(process_message(message))
+    print(p)
     await ctx.respond("Prompt received...")
     images = await ComfyClient().get_images(p, ctx, prompt_handler)
 
@@ -108,9 +117,33 @@ async def ref_set(ctx, ref, value):
 
 
 @bot.slash_command(name="ref-del", description="Remove a reference")
-async def ref_set(ctx, ref):
+async def ref_del(ctx, ref):
     ComfyHandlersContext().remove_reference(ComfyHandlersManager().get_current_handler().key(), ref)
     await ctx.respond("Remove #{}".format(ref))
+
+
+@bot.slash_command(name="prefix", description="Set a prefix for the prompt")
+async def set_prefix(ctx, prefix):
+    ComfyHandlersContext().set_prefix(ComfyHandlersManager().get_current_handler().key(), prefix)
+    await ctx.respond("Prefix set")
+
+
+@bot.slash_command(name="postfix", description="Set a postfix for the prompt")
+async def set_postfix(ctx, postfix):
+    ComfyHandlersContext().set_postfix(ComfyHandlersManager().get_current_handler().key(), postfix)
+    await ctx.respond("Postfix set")
+
+
+@bot.slash_command(name="prefix-del", description="Remove the current prompt prefix")
+async def remove_prefix(ctx):
+    ComfyHandlersContext().remove_prefix(ComfyHandlersManager().get_current_handler().key())
+    await ctx.respond("Prefix removed")
+
+
+@bot.slash_command(name="postfix-del", description="Remove the current prompt postfix")
+async def remove_postfix(ctx):
+    ComfyHandlersContext().remove_postfix(ComfyHandlersManager().get_current_handler().key())
+    await ctx.respond("Postfix removed")
 
 
 @bot.slash_command(name="info", guild=discord.Object(id=1111),

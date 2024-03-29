@@ -63,9 +63,13 @@ class ComfyHandlersContext(object):
 
     def _setup(self):
         self._references_by_handler = {}
+        self._prefixes_by_handler = {}
+        self._postfixes_by_handler = {}
 
     def register_handler(self, key):
         self._references_by_handler[key] = {}
+        self._prefixes_by_handler[key] = None
+        self._postfixes_by_handler[key] = None
 
     def set_reference(self, handler_key, ref, value):
         self._references_by_handler[handler_key]["#{}".format(ref)] = value
@@ -75,3 +79,21 @@ class ComfyHandlersContext(object):
 
     def get_reference(self, handler_key):
         return self._references_by_handler[handler_key]
+
+    def set_prefix(self, handler_key, prefix):
+        self._prefixes_by_handler[handler_key] = prefix
+
+    def set_postfix(self, handler_key, postfix):
+        self._prefixes_by_handler[handler_key] = postfix
+
+    def remove_prefix(self, handler_key):
+        self._prefixes_by_handler[handler_key] = None
+
+    def remove_postfix(self, handler_key):
+        self._postfixes_by_handler[handler_key] = None
+
+    def get_prefix(self, handler_key):
+        return self._prefixes_by_handler[handler_key]
+
+    def get_postfix(self, handler_key):
+        return self._postfixes_by_handler[handler_key]
