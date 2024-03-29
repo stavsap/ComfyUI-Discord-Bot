@@ -23,11 +23,6 @@ async def on_ready():
     logger.info(f'on_ready - logged in as {bot.user.name} bot.')
 
 
-async def print_button(interaction):
-    print(interaction.custom_id)
-    await interaction.response.send_message("You pressed me!")
-
-
 @bot.event
 async def on_message(message):
     # Check if the message is from a user and not the bot itself
@@ -72,14 +67,6 @@ async def on_message(message):
         #
         # # Send the message with the picture attached
         # await message.channel.send("Here's a picture!", file=picture)
-
-    # experimental
-    if message.content == '!button':
-        view = View()
-        btn = Button(label="Click Me!", style=discord.ButtonStyle.green, custom_id="test_button")
-        btn.callback = print_button
-        view.add_item(btn)
-        await message.channel.send("Here's a buttons!", view=view)
 
 
 @bot.slash_command(name="ping", guild=discord.Object(id=1111))
