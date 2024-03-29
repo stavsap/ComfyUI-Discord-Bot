@@ -1,15 +1,20 @@
 import importlib
 
+from common import get_logger
+
 
 class ComfyHandlersManager(object):
     _instance = None
 
+
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls, *args, **kwargs)
+            cls._instance._setup()
         return cls._instance
 
-    def __init__(self):
+    def _setup(self):
+        self._logger = get_logger("ComfyHandlersManager")
         self._current_handler_key = "Txt2Img"
         self._handlers = {}
         self._import_all_handlers()
@@ -28,6 +33,7 @@ class ComfyHandlersManager(object):
     def _import_all_handlers(self):
         self._import_handlers()
         # TODO import custom folder
+        self._logger.info("all handlers imported.")
 
     def set_current_handler(self, key):
         self._current_handler_key = key

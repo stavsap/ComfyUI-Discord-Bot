@@ -9,6 +9,8 @@ from discord.ui import View, Button
 
 from comfy_handlers_manager import ComfyHandlersManager
 from comfy_client import ComfyClient
+from common import get_logger
+
 
 class MyView(discord.ui.View):
     @discord.ui.button(label="Button 1", row=0, style=discord.ButtonStyle.primary)
@@ -23,12 +25,12 @@ class MyView(discord.ui.View):
 intents = discord.Intents.default()
 intents.dm_messages = True
 bot = commands.Bot(intents=intents, command_prefix="/")
-
+logger = get_logger("ComfyBOT")
 
 # Event triggered when the bot is ready
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user.name} bot.')
+    logger.info(f'on_ready - logged in as {bot.user.name} bot.')
 
 
 async def print_button(interaction):

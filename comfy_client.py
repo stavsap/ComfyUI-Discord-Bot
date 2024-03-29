@@ -6,6 +6,7 @@ import urllib.parse
 import websocket
 import os
 
+from common import get_logger
 
 class ComfyClient(object):
     _instance = None
@@ -13,13 +14,17 @@ class ComfyClient(object):
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls, *args, **kwargs)
+            cls._instance._setup()
         return cls._instance
 
-    def __init__(self):
+    def _setup(self):
+        self._logger = get_logger("ComfyClient")
         self._comfy_url = os.getenv('COMFY_UI_ADDRESS', '127.0.0.1:8188')
         self._websocket = None
         self._client_id = str(uuid.uuid4())
         self._connect_websocket()
+        self._logger.info(
+            "comfy client created with client id [{}] and url [{}].".format(self._client_id, self._comfy_url))
 
     def _connect_websocket(self):
         self._websocket = websocket.WebSocket()
