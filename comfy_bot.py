@@ -32,6 +32,12 @@ async def on_message(message):
     # print(str(len(message.attachments)))
     # print(message.attachments[0].content_type)
 
+    if len(message.attachments) > 0:
+        for attachment in message.attachments:
+            if attachment.content_type.startswith('image'):
+                # print(attachment.url)
+                pass
+
     if message.content.startswith("!help"):
         await message.channel.send("Hi, use !gen to get a picture")
     # Check if the message starts with a specific command or trigger
@@ -90,8 +96,9 @@ async def checkpoints(ctx):
 
 
 async def set_handler(interaction):
-    # TODO set default handler
-    await interaction.response.send_message("Handler [{}] selected".format(interaction.custom_id))
+    ComfyHandlersManager().set_current_handler(interaction.custom_id)
+    await interaction.response.send_message("Handler [{}] selected\n\n{}".format(interaction.custom_id, ComfyHandlersManager().get_current_handler().info()))
+
 
 
 @bot.slash_command(name="handlers", guild=discord.Object(id=1111), description="list of all handlers")

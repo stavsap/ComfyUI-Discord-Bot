@@ -29,6 +29,7 @@ class ComfyHandlersManager(object):
         for item in items:
             instance = getattr(modul, item)()
             self._handlers[instance.key()] = instance
+            self._logger.info("handler [{}] added.".format(instance.key()))
 
     def _import_all_handlers(self):
         self._import_handlers()
@@ -37,6 +38,7 @@ class ComfyHandlersManager(object):
 
     def set_current_handler(self, key):
         self._current_handler_key = key
+        self._logger.info("current handler set to: {}".format(self._current_handler_key))
 
     def get_current_handler(self):
         return self._handlers[self._current_handler_key]
