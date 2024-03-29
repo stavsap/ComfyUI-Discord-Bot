@@ -21,6 +21,8 @@ class ComfyClient(object):
         return cls._instance
 
     def _setup(self):
+        self._protocol = "http"
+        self._socket_protocol = "ws"
         self._logger = get_logger("ComfyClient")
         self._comfy_url = os.getenv('COMFY_UI_ADDRESS', '127.0.0.1:8188')
         self._websocket = None
@@ -31,27 +33,55 @@ class ComfyClient(object):
 
     def _connect_websocket(self):
         self._websocket = websocket.WebSocket()
-        self._websocket.connect("ws://{}/ws?clientId={}".format(self._comfy_url, self._client_id))
+        self._websocket.connect(
+            "{}://{}/ws?clientId={}".format(self._socket_protocol, self._comfy_url, self._client_id))
 
     def queue_prompt(self, prompt):
         p = {"prompt": prompt, "client_id": self._client_id}
         data = json.dumps(p).encode('utf-8')
-        req = urllib.request.Request("http://{}/prompt".format(self._comfy_url), data=data)
+        req = urllib.request.Request("{}://{}/prompt".format(self._protocol, self._comfy_url), data=data)
         return json.loads(urllib.request.urlopen(req).read())
 
     def get_image(self, filename, subfolder, folder_type):
         data = {"filename": filename, "subfolder": subfolder, "type": folder_type}
         url_values = urllib.parse.urlencode(data)
-        with urllib.request.urlopen("http://{}/view?{}".format(self._comfy_url, url_values)) as response:
+        with urllib.request.urlopen("{}://{}/view?{}".format(self._protocol, self._comfy_url, url_values)) as response:
             return response.read()
 
     def get_history(self, prompt_id):
-        with urllib.request.urlopen("http://{}/history/{}".format(self._comfy_url, prompt_id)) as response:
+        with urllib.request.urlopen(
+                "{}://{}/history/{}".format(self._protocol, self._comfy_url, prompt_id)) as response:
             return json.loads(response.read())
 
     def get_checkpoints(self):
-        with urllib.request.urlopen("http://{}/object_info/CheckpointLoaderSimple".format(self._comfy_url)) as response:
+        with urllib.request.urlopen(
+                "{}://{}/object_info/CheckpointLoaderSimple".format(self._protocol, self._comfy_url)) as response:
             return json.loads(response.read())["CheckpointLoaderSimple"]["input"]["required"]["ckpt_name"][0]
+
+    def get_system_stats(self):
+        with urllib.request.urlopen("{}://{}/system_stats".format(self._protocol, self._comfy_url)) as response:
+            return json.loads(response.read())
+
+    def get_prompt(self):
+        with urllib.request.urlopen("{}://{}/prompt".format(self._protocol, self._comfy_url)) as response:
+            return json.loads(response.read())
+
+    def get_queue(self):
+        with urllib.request.urlopen("{}://{}/queue".format(self._protocol, self._comfy_url)) as response:
+            return json.loads(response.read())
+
+    def get_history(self):
+        with urllib.request.urlopen("{}://{}/history".format(self._protocol, self._comfy_url)) as response:
+            return json.loads(response.read())
+
+    def get_history_by_prompt_id(self, prompt_id):
+        with urllib.request.urlopen(
+                "{}://{}/history/{}".format(self._protocol, self._comfy_url, prompt_id)) as response:
+            return json.loads(response.read())
+
+    def get_embeddings(self):
+        with urllib.request.urlopen("{}://{}/embeddings".format(self._protocol, self._comfy_url)) as response:
+            return json.loads(response.read())
 
     async def get_images(self, prompt, channel=None, prompt_handler=None):
         prompt_id = self.queue_prompt(prompt)['prompt_id']

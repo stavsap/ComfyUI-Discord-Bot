@@ -1,5 +1,7 @@
 import re
 import importlib
+
+from comfy_client import ComfyClient
 from comfy_handlers_manager import ComfyHandlersManager
 from handlers import ImgToImageHandler
 
@@ -25,3 +27,5 @@ print( getattr(modul, "__all__"))
 ComfyHandlersManager()
 
 ImgToImageHandler().handle("xzczxczxc")
+
+print(ComfyClient().get_embeddings())

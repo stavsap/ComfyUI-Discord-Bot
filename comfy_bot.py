@@ -97,8 +97,8 @@ async def checkpoints(ctx):
 
 async def set_handler(interaction):
     ComfyHandlersManager().set_current_handler(interaction.custom_id)
-    await interaction.response.send_message("Handler [{}] selected\n\n{}".format(interaction.custom_id, ComfyHandlersManager().get_current_handler().info()))
-
+    await interaction.response.send_message("Handler [{}] selected\n\n{}".format(interaction.custom_id,
+                                                                                 ComfyHandlersManager().get_current_handler().info()))
 
 
 @bot.slash_command(name="handlers", guild=discord.Object(id=1111), description="list of all handlers")
@@ -110,6 +110,13 @@ async def handlers(ctx):
         view.add_item(btn)
     await ctx.respond("Select handler:")
     await ctx.send("", view=view)
+
+
+@bot.slash_command(name="queue", guild=discord.Object(id=1111), description="Get queue status")
+async def queue_status(ctx):
+    response = "{}\n{}".format(ComfyClient().get_queue(), ComfyClient().get_prompt())
+    await ctx.respond(response)
+
 
 if __name__ == '__main__':
     token = os.getenv('DISCORD_BOT_API_TOKEN')
