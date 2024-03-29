@@ -8,6 +8,7 @@ import os
 
 from common import get_logger
 
+
 # TODO add TLS support + insecure flag + trust cert option. TLS + wss.
 
 class ComfyClient(object):
