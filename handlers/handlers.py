@@ -91,10 +91,10 @@ prompt_text_ws = """
 """
 
 def get_workflow_handler():
-    return WorkflowHandler()
+    return TxtToImageHandler()
 
 
-class WorkflowHandler:
+class TxtToImageHandler:
     def __init__(self):
         self.flags_dic = {
                 'res': self._res,

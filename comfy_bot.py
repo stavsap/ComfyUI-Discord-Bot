@@ -8,7 +8,7 @@ import uuid
 from discord.ui import View, Button
 
 from comfy_client import get_images, get_checkpoints
-from comfy_workload_handlers import get_current_workload_handler, get_handlers
+from comfy_handlers_manager import get_current_handler, get_handlers
 
 
 class MyView(discord.ui.View):
@@ -48,7 +48,7 @@ async def on_message(message):
     # Check if the message starts with a specific command or trigger
     if message.content.startswith("!gen"):
 
-        prompt_handler = get_current_workload_handler()
+        prompt_handler = get_current_handler()
         prompt = prompt_handler.handle(message.content[len("!gen "):])
 
         images = await get_images(prompt, message.channel, prompt_handler)
@@ -92,10 +92,13 @@ async def on_message(message):
 async def ping(ctx):
     await ctx.respond("pong")
 
-@bot.slash_command(name="info", guild=discord.Object(id=1111), description="information of the current workflow handler")
+
+@bot.slash_command(name="info", guild=discord.Object(id=1111),
+                   description="information of the current workflow handler")
 async def info(ctx):
-    prompt_handler = get_current_workload_handler()
+    prompt_handler = get_current_handler()
     await ctx.respond(prompt_handler.info())
+
 
 @bot.slash_command(name="checkpoints", guild=discord.Object(id=1111), description="list of all supported checkpoints")
 async def checkpoints(ctx):
@@ -105,6 +108,7 @@ async def checkpoints(ctx):
         response += checkpoint + "\n"
     await ctx.respond(response)
 
+
 @bot.slash_command(name="handlers", guild=discord.Object(id=1111), description="list of all handlers")
 async def handlers(ctx):
     handlers = get_handlers()
@@ -112,6 +116,7 @@ async def handlers(ctx):
     for handler in handlers:
         response += handler + "\n"
     await ctx.respond(response)
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
