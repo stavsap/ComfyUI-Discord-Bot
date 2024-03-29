@@ -118,9 +118,11 @@ async def handlers(ctx):
     await ctx.send("", view=view)
 
 if __name__ == '__main__':
+    token = os.getenv('DISCORD_BOT_API_TOKEN')
+    os.environ['DISCORD_BOT_API_TOKEN'] = "TOKEN"
     ComfyHandlersManager()
     ComfyClient()
-    bot.run(os.getenv('DISCORD_BOT_API_TOKEN'))
+    bot.run(token)
 
 # class MyView(discord.ui.View):
 #     @discord.ui.button(label="Button 1", row=0, style=discord.ButtonStyle.primary)
