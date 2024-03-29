@@ -7,9 +7,8 @@ import uuid
 
 from discord.ui import View, Button
 
-from comfy_client import get_images, get_checkpoints
 from comfy_handlers_manager import ComfyHandlersManager
-
+from comfy_client import ComfyClient
 
 class MyView(discord.ui.View):
     @discord.ui.button(label="Button 1", row=0, style=discord.ButtonStyle.primary)
@@ -42,6 +41,9 @@ async def on_message(message):
     # Check if the message is from a user and not the bot itself
     if message.author == bot.user:
         return
+    #
+    # print(str(len(message.attachments)))
+    # print(message.attachments[0].content_type)
 
     if message.content.startswith("!help"):
         await message.channel.send("Hi, use !gen to get a picture")
@@ -51,7 +53,7 @@ async def on_message(message):
         prompt_handler = ComfyHandlersManager().get_current_handler()
         prompt = prompt_handler.handle(message.content[len("!gen "):])
 
-        images = await get_images(prompt, message.channel, prompt_handler)
+        images = await ComfyClient().get_images(prompt, message.channel, prompt_handler)
 
         for node_id, image_list in images.items():
 
@@ -103,7 +105,7 @@ async def info(ctx):
 @bot.slash_command(name="checkpoints", guild=discord.Object(id=1111), description="list of all supported checkpoints")
 async def checkpoints(ctx):
     response = "Supported Checkpoints:\n\n"
-    for checkpoint in get_checkpoints():
+    for checkpoint in ComfyClient().get_checkpoints():
         response += checkpoint + "\n\n"
     await ctx.respond(response)
 
@@ -124,4 +126,5 @@ async def handlers(ctx):
 
 if __name__ == '__main__':
     ComfyHandlersManager()
+    ComfyClient()
     bot.run(os.getenv('DISCORD_BOT_API_TOKEN'))
