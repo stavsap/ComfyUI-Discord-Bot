@@ -60,24 +60,8 @@ async def on_message(message):
                 pass
 
     if message.content.startswith("!help"):
-        await message.channel.send("Hi, use !gen to get a picture")
+        await message.channel.send("Hi, use '/' commands")
     # Check if the message starts with a specific command or trigger
-    if message.content.startswith("!gen"):
-
-        prompt_handler = ComfyHandlersManager().get_current_handler()
-        p = prompt_handler.handle(process_message(message.content[len("!gen "):]))
-
-        images = await ComfyClient().get_images(p, message.channel, prompt_handler)
-
-        for node_id, image_list in images.items():
-
-            # Collect all images from current image list
-            imgs = [File(filename=str(uuid.uuid4()) + ".png", fp=io.BytesIO(image_data)) for image_data in image_list]
-
-            for img in imgs:
-                await message.channel.send("", file=img)
-
-        await message.channel.send("All complete")
         # async def rerun(interaction):
         #     print(interaction.custom_id)
         #     await interaction.response.send_message("")
@@ -182,7 +166,7 @@ async def handlers(ctx):
 @bot.slash_command(name="q-status", guild=discord.Object(id=1113), description="Get queue status")
 async def queue_status(ctx):
     response = "{}\n{}".format(ComfyClient().get_queue(), ComfyClient().get_prompt())
-    await ctx.respond("response")
+    await ctx.respond(response)
 
 
 if __name__ == '__main__':
