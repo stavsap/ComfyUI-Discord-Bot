@@ -44,9 +44,9 @@ async def on_message(message):
     if message.content.startswith("!gen"):
 
         prompt_handler = ComfyHandlersManager().get_current_handler()
-        prompt = prompt_handler.handle(message.content[len("!gen "):])
+        p = prompt_handler.handle(message.content[len("!gen "):])
 
-        images = await ComfyClient().get_images(prompt, message.channel, prompt_handler)
+        images = await ComfyClient().get_images(p, message.channel, prompt_handler)
 
         for node_id, image_list in images.items():
 
@@ -75,9 +75,21 @@ async def on_message(message):
         # await message.channel.send("Here's a picture!", file=picture)
 
 
-@bot.slash_command(name="ping", guild=discord.Object(id=1111))
-async def ping(ctx):
-    await ctx.respond("pong")
+@bot.slash_command(name="q", description="Submit a prompt to current workflow handler")
+async def prompt(ctx, message):
+    prompt_handler = ComfyHandlersManager().get_current_handler()
+    p = prompt_handler.handle(message)
+
+    await ctx.respond("Prompt received")
+
+    images = await ComfyClient().get_images(p, ctx, prompt_handler)
+
+    for node_id, image_list in images.items():
+        imgs = [File(filename=str(uuid.uuid4()) + ".png", fp=io.BytesIO(image_data)) for image_data in image_list]
+        for img in imgs:
+            await ctx.send("", file=img)
+
+    await ctx.send("All complete")
 
 
 @bot.slash_command(name="info", guild=discord.Object(id=1111),
@@ -112,10 +124,10 @@ async def handlers(ctx):
     await ctx.send("", view=view)
 
 
-@bot.slash_command(name="queue", guild=discord.Object(id=1111), description="Get queue status")
+@bot.slash_command(name="q-status", guild=discord.Object(id=1113), description="Get queue status")
 async def queue_status(ctx):
     response = "{}\n{}".format(ComfyClient().get_queue(), ComfyClient().get_prompt())
-    await ctx.respond(response)
+    await ctx.respond("response")
 
 
 if __name__ == '__main__':
