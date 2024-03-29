@@ -34,4 +34,4 @@ To run the bot after creating and obtaining the bot Token, set environment varia
 
 # Contribution
 
-If you want to contribute, feel free to fork and do a Pull Request. in the PR just describe in high level what is being merged.
+If you want to contribute, feel free to fork the repository and submit a Pull Request. When creating the PR, please provide a high-level description of the changes or new feature being merged.
