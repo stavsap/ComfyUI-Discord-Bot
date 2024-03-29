@@ -8,7 +8,7 @@ Just type '/' and you should be able to see the list of all commands under you B
 
 ### /q {message}
 
-Queue a workflow of the current handler with a given message.
+Queue a workflow of the current handler with a given message. The message should contain all the required information and syntax for the current handler.
 
 ### /ref-set {ref} {value}
 
