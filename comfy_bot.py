@@ -11,21 +11,11 @@ from comfy_handlers_manager import ComfyHandlersManager
 from comfy_client import ComfyClient
 from common import get_logger
 
-
-class MyView(discord.ui.View):
-    @discord.ui.button(label="Button 1", row=0, style=discord.ButtonStyle.primary)
-    async def first_button_callback(self, button, interaction):
-        await interaction.response.send_message("You pressed me!")
-
-    @discord.ui.button(label="Button 2", row=1, style=discord.ButtonStyle.primary)
-    async def second_button_callback(self, button, interaction):
-        await interaction.response.send_message("You pressed me!")
-
-
 intents = discord.Intents.default()
 intents.dm_messages = True
 bot = commands.Bot(intents=intents, command_prefix="/")
 logger = get_logger("ComfyBOT")
+
 
 # Event triggered when the bot is ready
 @bot.event
@@ -111,9 +101,11 @@ async def checkpoints(ctx):
         response += checkpoint + "\n\n"
     await ctx.respond(response)
 
+
 async def set_hendler(interaction):
     # TODO set default handler
     await interaction.response.send_message("Handler [{}] selected".format(interaction.custom_id))
+
 
 @bot.slash_command(name="handlers", guild=discord.Object(id=1111), description="list of all handlers")
 async def handlers(ctx):
@@ -130,3 +122,12 @@ if __name__ == '__main__':
     ComfyHandlersManager()
     ComfyClient()
     bot.run(os.getenv('DISCORD_BOT_API_TOKEN'))
+
+# class MyView(discord.ui.View):
+#     @discord.ui.button(label="Button 1", row=0, style=discord.ButtonStyle.primary)
+#     async def first_button_callback(self, button, interaction):
+#         await interaction.response.send_message("You pressed me!")
+#
+#     @discord.ui.button(label="Button 2", row=1, style=discord.ButtonStyle.primary)
+#     async def second_button_callback(self, button, interaction):
+#         await interaction.response.send_message("You pressed me!")
