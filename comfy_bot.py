@@ -55,7 +55,7 @@ async def on_message(message):
     if message.content.startswith("!gen"):
 
         prompt_handler = ComfyHandlersManager().get_current_handler()
-        p = prompt_handler.handle(message.content[len("!gen "):])
+        p = prompt_handler.handle(process_message(message.content[len("!gen "):]))
 
         images = await ComfyClient().get_images(p, message.channel, prompt_handler)
 
@@ -89,9 +89,7 @@ async def on_message(message):
 @bot.slash_command(name="q", description="Submit a prompt to current workflow handler")
 async def prompt(ctx, message):
     prompt_handler = ComfyHandlersManager().get_current_handler()
-    message = process_message(message)
-    print(message)
-    p = prompt_handler.handle(message)
+    p = prompt_handler.handle(process_message(message))
     await ctx.respond("Prompt received...")
     images = await ComfyClient().get_images(p, ctx, prompt_handler)
 
