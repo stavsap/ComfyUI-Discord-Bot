@@ -102,7 +102,7 @@ async def checkpoints(ctx):
     await ctx.respond(response)
 
 
-async def set_hendler(interaction):
+async def set_handler(interaction):
     # TODO set default handler
     await interaction.response.send_message("Handler [{}] selected".format(interaction.custom_id))
 
@@ -112,11 +112,10 @@ async def handlers(ctx):
     view = View()
     for handler in ComfyHandlersManager().get_handlers():
         btn = Button(label=handler, style=discord.ButtonStyle.green, custom_id=handler)
-        btn.callback = set_hendler
+        btn.callback = set_handler
         view.add_item(btn)
     await ctx.respond("Select handler:")
     await ctx.send("", view=view)
-
 
 if __name__ == '__main__':
     ComfyHandlersManager()
