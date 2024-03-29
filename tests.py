@@ -29,3 +29,12 @@ ComfyHandlersManager()
 ImgToImageHandler().handle("xzczxczxc")
 
 print(ComfyClient().get_embeddings())
+
+text ="sadkasdka #moo sdfsdfsdf #mbcvbc"
+
+hashtag_pattern = r'#\w+'
+
+# Find all matches of the pattern in the text
+hashtags = re.findall(hashtag_pattern, text)
+
+print(hashtags)

@@ -4,10 +4,10 @@ import discord
 from discord import File
 from discord.ext import commands
 import uuid
-
+import re
 from discord.ui import View, Button
 
-from comfy_handlers_manager import ComfyHandlersManager
+from comfy_handlers_manager import ComfyHandlersManager, ComfyHandlersContext
 from comfy_client import ComfyClient
 from common import get_logger
 
@@ -15,6 +15,18 @@ intents = discord.Intents.default()
 intents.dm_messages = True
 bot = commands.Bot(intents=intents, command_prefix="/")
 logger = get_logger("ComfyBOT")
+
+
+def process_message(message):
+    # TODO optimize by finding the hash tags and replace only them
+    # hashtag_pattern = r'#\w+'
+    # hashtags = re.findall(hashtag_pattern, message)
+    refs = ComfyHandlersContext().get_reference(ComfyHandlersManager().get_current_handler().key())
+    message = message + " "
+    for key, value in refs.items():
+        message = message.replace("{} ".format(key), "{} ".format(value))
+    return message[:-1]
+
 
 # Event triggered when the bot is ready
 @bot.event
@@ -77,10 +89,10 @@ async def on_message(message):
 @bot.slash_command(name="q", description="Submit a prompt to current workflow handler")
 async def prompt(ctx, message):
     prompt_handler = ComfyHandlersManager().get_current_handler()
+    message = process_message(message)
+    print(message)
     p = prompt_handler.handle(message)
-
-    await ctx.respond("Prompt received")
-
+    await ctx.respond("Prompt received...")
     images = await ComfyClient().get_images(p, ctx, prompt_handler)
 
     for node_id, image_list in images.items():
@@ -93,11 +105,13 @@ async def prompt(ctx, message):
 
 @bot.slash_command(name="ref-set", description="Set a reference value")
 async def ref_set(ctx, ref, value):
+    ComfyHandlersContext().set_reference(ComfyHandlersManager().get_current_handler().key(), ref, value)
     await ctx.respond("Set #{}={}".format(ref, value))
 
 
 @bot.slash_command(name="ref-del", description="Remove a reference")
 async def ref_set(ctx, ref):
+    ComfyHandlersContext().remove_reference(ComfyHandlersManager().get_current_handler().key(), ref)
     await ctx.respond("Remove #{}".format(ref))
 
 
