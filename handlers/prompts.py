@@ -94,8 +94,8 @@ IMG_TO_IMG_PROMPT = """
       "seed": 333592799566352,
       "steps": 20,
       "cfg": 8,
-      "sampler_name": "dpm_2",
-      "scheduler": "karras",
+      "sampler_name": "euler",
+      "scheduler": "normal",
       "denoise": 0.5,
       "model": [
         "4",
