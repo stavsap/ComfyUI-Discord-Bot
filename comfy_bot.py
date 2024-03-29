@@ -8,7 +8,7 @@ import uuid
 from discord.ui import View, Button
 
 from comfy_client import get_images, get_checkpoints
-from comfy_handlers_manager import get_current_handler, get_handlers
+from comfy_handlers_manager import ComfyHandlersManager
 
 
 class MyView(discord.ui.View):
@@ -48,7 +48,7 @@ async def on_message(message):
     # Check if the message starts with a specific command or trigger
     if message.content.startswith("!gen"):
 
-        prompt_handler = get_current_handler()
+        prompt_handler = ComfyHandlersManager().get_current_handler()
         prompt = prompt_handler.handle(message.content[len("!gen "):])
 
         images = await get_images(prompt, message.channel, prompt_handler)
@@ -96,29 +96,32 @@ async def ping(ctx):
 @bot.slash_command(name="info", guild=discord.Object(id=1111),
                    description="information of the current workflow handler")
 async def info(ctx):
-    prompt_handler = get_current_handler()
+    prompt_handler = ComfyHandlersManager().get_current_handler()
     await ctx.respond(prompt_handler.info())
 
 
 @bot.slash_command(name="checkpoints", guild=discord.Object(id=1111), description="list of all supported checkpoints")
 async def checkpoints(ctx):
-    checkpoints = get_checkpoints()["CheckpointLoaderSimple"]["input"]["required"]["ckpt_name"][0]
     response = "Supported Checkpoints:\n\n"
-    for checkpoint in checkpoints:
-        response += checkpoint + "\n"
+    for checkpoint in get_checkpoints():
+        response += checkpoint + "\n\n"
     await ctx.respond(response)
 
+async def set_hendler(interaction):
+    # TODO set default handler
+    await interaction.response.send_message("Handler [{}] selected".format(interaction.custom_id))
 
 @bot.slash_command(name="handlers", guild=discord.Object(id=1111), description="list of all handlers")
 async def handlers(ctx):
-    handlers = get_handlers()
-    response = "Supported Handlers:\n\n"
-    for handler in handlers:
-        response += handler + "\n"
-    await ctx.respond(response)
+    view = View()
+    for handler in ComfyHandlersManager().get_handlers():
+        btn = Button(label=handler, style=discord.ButtonStyle.green, custom_id=handler)
+        btn.callback = set_hendler
+        view.add_item(btn)
+    await ctx.respond("Select handler:")
+    await ctx.send("", view=view)
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    # Create a new bot instance
+    ComfyHandlersManager()
     bot.run(os.getenv('DISCORD_BOT_API_TOKEN'))

@@ -41,7 +41,7 @@ def get_history(prompt_id):
 
 def get_checkpoints():
     with urllib.request.urlopen("http://{}/object_info/CheckpointLoaderSimple".format(SERVER_ADDRESS)) as response:
-        return json.loads(response.read())
+        return json.loads(response.read())["CheckpointLoaderSimple"]["input"]["required"]["ckpt_name"][0]
 
 
 async def get_images(prompt, channel=None, prompt_handler=None):
