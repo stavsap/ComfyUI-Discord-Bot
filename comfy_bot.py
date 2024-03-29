@@ -33,7 +33,9 @@ def process_message(message):
     message = message + " "
     for key, value in refs.items():
         message = message.replace("{} ".format(key), "{} ".format(value))
-    return message[:-1]
+    message = message[:-1]
+    logger.debug("processed prompt: {}".format(message))
+    return message
 
 
 # Event triggered when the bot is ready
@@ -98,7 +100,6 @@ async def on_message(message):
 async def prompt(ctx, message):
     prompt_handler = ComfyHandlersManager().get_current_handler()
     p = prompt_handler.handle(process_message(message))
-    print(p)
     await ctx.respond("Prompt received...")
     images = await ComfyClient().get_images(p, ctx, prompt_handler)
 

@@ -84,7 +84,7 @@ class ComfyHandlersContext(object):
         self._prefixes_by_handler[handler_key] = prefix
 
     def set_postfix(self, handler_key, postfix):
-        self._prefixes_by_handler[handler_key] = postfix
+        self._postfixes_by_handler[handler_key] = postfix
 
     def remove_prefix(self, handler_key):
         self._prefixes_by_handler[handler_key] = None
