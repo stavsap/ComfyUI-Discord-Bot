@@ -172,7 +172,7 @@ supported flags:
 --sampler: the sampler to use, euler if not present.
 '''
     def key(self):
-        return "BASIC"
+        return "Txt2Img"
     def _res(self, value, workflow):
         split = value.split(':')
         workflow["5"]["inputs"]["height"] = split[0]

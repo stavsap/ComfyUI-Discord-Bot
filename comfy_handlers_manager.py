@@ -1,6 +1,6 @@
 import importlib
 
-CURRENT_HANDLER_KEY = "BASIC"
+CURRENT_HANDLER_KEY = "Txt2Img"
 
 HANDLERS = {}
 
