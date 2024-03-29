@@ -16,7 +16,6 @@ intents.dm_messages = True
 bot = commands.Bot(intents=intents, command_prefix="/")
 logger = get_logger("ComfyBOT")
 
-
 # Event triggered when the bot is ready
 @bot.event
 async def on_ready():
@@ -90,6 +89,16 @@ async def prompt(ctx, message):
             await ctx.send("", file=img)
 
     await ctx.send("All complete")
+
+
+@bot.slash_command(name="ref-set", description="Set a reference value")
+async def ref_set(ctx, ref, value):
+    await ctx.respond("Set #{}={}".format(ref, value))
+
+
+@bot.slash_command(name="ref-del", description="Remove a reference")
+async def ref_set(ctx, ref):
+    await ctx.respond("Remove #{}".format(ref))
 
 
 @bot.slash_command(name="info", guild=discord.Object(id=1111),
