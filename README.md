@@ -8,6 +8,8 @@ Makes usage of [pycord](https://guide.pycord.dev/installation), also check [pyco
 
 <a href="https://www.buymeacoffee.com/stavsapq" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="30" width="150"></a>
 
+![pic](.meta/prompt.png)
+
 ![pic](.meta/screenshot.png)
 
 ## Setup
