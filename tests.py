@@ -1,6 +1,7 @@
 import re
 import importlib
 
+from bot_db import BotDB
 from comfy_client import ComfyClient
 from comfy_handlers_manager import ComfyHandlersManager
 from handlers import ImgToImageHandler
@@ -38,3 +39,11 @@ hashtag_pattern = r'#\w+'
 hashtags = re.findall(hashtag_pattern, text)
 
 print(hashtags)
+
+BotDB().create_or_update_handler_reference("key","#ref", "asdasdd")
+
+res = BotDB().get_all_handler_reference("key")
+
+print(res)
+
+BotDB().remove_all_handler_reference("key")

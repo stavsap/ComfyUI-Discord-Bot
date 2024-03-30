@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 custom_handlers
-
+db/
 
 __pycache__/
 *.py[cod]

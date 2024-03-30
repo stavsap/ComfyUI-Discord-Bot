@@ -1,5 +1,7 @@
 import importlib
 import os
+
+from bot_db import BotDB
 from common import get_logger
 
 
@@ -29,7 +31,6 @@ class ComfyHandlersManager(object):
         for item in items:
             instance = getattr(modul, item)()
             self._handlers[instance.key()] = instance
-            ComfyHandlersContext().register_handler(instance.key())
             self._logger.info("handler '{}' added.".format(instance.key()))
 
     def _import_all_handlers(self):
@@ -62,38 +63,48 @@ class ComfyHandlersContext(object):
         return cls._instance
 
     def _setup(self):
-        self._references_by_handler = {}
-        self._prefixes_by_handler = {}
-        self._postfixes_by_handler = {}
-
-    def register_handler(self, key):
-        self._references_by_handler[key] = {}
-        self._prefixes_by_handler[key] = None
-        self._postfixes_by_handler[key] = None
+        self._db: BotDB = BotDB()
 
     def set_reference(self, handler_key, ref, value):
-        self._references_by_handler[handler_key]["#{}".format(ref)] = value
+        self._db.create_or_update_handler_reference(handler_key, "#{}".format(ref), value)
 
     def remove_reference(self, handler_key, ref):
-        del self._references_by_handler[handler_key]["#{}".format(ref)]
+        self._db.remove_handler_reference(handler_key, "#{}".format(ref))
 
     def get_reference(self, handler_key):
-        return self._references_by_handler[handler_key]
+        res = {}
+        refs = self._db.get_all_handler_reference(handler_key)
+        for ref in refs:
+            res[ref.ref] = ref.value
+        return res
 
     def set_prefix(self, handler_key, prefix):
-        self._prefixes_by_handler[handler_key] = prefix
+        self._db.create_or_update_handler_fixes(handler_key,"prefix", prefix)
 
     def set_postfix(self, handler_key, postfix):
-        self._postfixes_by_handler[handler_key] = postfix
+        self._db.create_or_update_handler_fixes(handler_key,"postfix", postfix)
 
     def remove_prefix(self, handler_key):
-        self._prefixes_by_handler[handler_key] = None
+        self._db.remove_handler_fixes_by_type(handler_key, "prefix")
 
     def remove_postfix(self, handler_key):
-        self._postfixes_by_handler[handler_key] = None
+        self._db.remove_handler_fixes_by_type(handler_key, "postfix")
 
     def get_prefix(self, handler_key):
-        return self._prefixes_by_handler[handler_key]
+        res = None
+        for fix in self._db.get_all_handler_fixes(handler_key):
+            if fix.type == "prefix":
+                res = fix.value
+                break
+        return res
 
     def get_postfix(self, handler_key):
-        return self._postfixes_by_handler[handler_key]
+        res = None
+        for fix in self._db.get_all_handler_fixes(handler_key):
+            if fix.type == "postfix":
+                res = fix.value
+                break
+        return res
+
+
+

@@ -7,6 +7,7 @@ import uuid
 import re
 from discord.ui import View, Button
 
+from bot_db import BotDB
 from comfy_handlers_manager import ComfyHandlersManager, ComfyHandlersContext
 from comfy_client import ComfyClient
 from common import get_logger
@@ -130,35 +131,41 @@ async def ref_view(ctx):
 @bot.slash_command(name="prefix", description="Set a prefix for the prompt")
 async def set_prefix(ctx, prefix):
     ComfyHandlersContext().set_prefix(ComfyHandlersManager().get_current_handler().key(), prefix)
-    await ctx.respond("Prefix set")
+    await ctx.respond("```Prefix set!```")
 
 
 @bot.slash_command(name="postfix", description="Set a postfix for the prompt")
 async def set_postfix(ctx, postfix):
     ComfyHandlersContext().set_postfix(ComfyHandlersManager().get_current_handler().key(), postfix)
-    await ctx.respond("Postfix set")
+    await ctx.respond("```Postfix set!```")
 
 
 @bot.slash_command(name="prefix-del", description="Remove the current prompt prefix")
 async def remove_prefix(ctx):
     ComfyHandlersContext().remove_prefix(ComfyHandlersManager().get_current_handler().key())
-    await ctx.respond("Prefix removed")
+    await ctx.respond("```Prefix removed```")
 
 
 @bot.slash_command(name="postfix-del", description="Remove the current prompt postfix")
 async def remove_postfix(ctx):
     ComfyHandlersContext().remove_postfix(ComfyHandlersManager().get_current_handler().key())
-    await ctx.respond("Postfix removed")
+    await ctx.respond("```Postfix removed```")
 
 
 @bot.slash_command(name="prefix-view", description="View the current prompt prefix")
-async def remove_prefix(ctx):
-    await ctx.respond(ComfyHandlersContext().get_prefix(ComfyHandlersManager().get_current_handler().key()))
+async def prefix_view(ctx):
+    res = ComfyHandlersContext().get_prefix(ComfyHandlersManager().get_current_handler().key())
+    if res is None or len(res) == 0:
+        res = "```no prefix set!```"
+    await ctx.respond(res)
 
 
 @bot.slash_command(name="postfix-view", description="View the current prompt postfix")
-async def remove_postfix(ctx):
-    await ctx.respond(ComfyHandlersContext().get_postfix(ComfyHandlersManager().get_current_handler().key()))
+async def postfix_view(ctx):
+    res = ComfyHandlersContext().get_postfix(ComfyHandlersManager().get_current_handler().key())
+    if res is None or len(res) == 0:
+        res = "```no postfix set!```"
+    await ctx.respond(res)
 
 
 @bot.slash_command(name="info", guild=discord.Object(id=1111),
@@ -202,6 +209,7 @@ async def queue_status(ctx):
 if __name__ == '__main__':
     token = os.getenv('DISCORD_BOT_API_TOKEN')
     os.environ['DISCORD_BOT_API_TOKEN'] = "TOKEN"
+    BotDB()
     ComfyHandlersManager()
     ComfyClient()
     bot.run(token)
