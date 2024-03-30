@@ -168,15 +168,14 @@ async def postfix_view(ctx):
     await ctx.respond(res)
 
 
-@bot.slash_command(name="info", guild=discord.Object(id=1111),
-                   description="information of the current workflow handler")
+@bot.slash_command(name="info", description="information of the current workflow handler")
 async def info(ctx):
     prompt_handler = ComfyHandlersManager().get_current_handler()
     await ctx.respond(prompt_handler.info())
 
 
-@bot.slash_command(name="checkpoints", guild=discord.Object(id=1111), description="list of all supported checkpoints")
-async def checkpoints(ctx):
+@bot.slash_command(name="checkpoints", description="list of all supported checkpoints")
+async def checkpoints(ctx: discord.commands.context.ApplicationContext):
     response = "Supported Checkpoints:\n\n"
     for checkpoint in ComfyClient().get_checkpoints():
         response += checkpoint + "\n\n"
@@ -189,7 +188,7 @@ async def set_handler(interaction):
                                                                                  ComfyHandlersManager().get_current_handler().info()))
 
 
-@bot.slash_command(name="handlers", guild=discord.Object(id=1111), description="list of all handlers")
+@bot.slash_command(name="handlers", description="list of all handlers")
 async def handlers(ctx):
     view = View()
     for handler in ComfyHandlersManager().get_handlers():
@@ -200,7 +199,7 @@ async def handlers(ctx):
     await ctx.send("", view=view)
 
 
-@bot.slash_command(name="q-status", guild=discord.Object(id=1113), description="Get queue status")
+@bot.slash_command(name="q-status", description="Get queue status")
 async def queue_status(ctx):
     response = "{}\n{}".format(ComfyClient().get_queue(), ComfyClient().get_prompt())
     await ctx.respond(response)
