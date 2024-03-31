@@ -82,17 +82,17 @@ Will remove the current postfix if any set.
 
 Will display the current postfix if any set.
 
-### /info
+### /handlers
 
-TODO describe
+View all supported handler, the list is buttons, pressing a button will set the current handler as selected.
+
+### /handler-info
+
+View information regarding the current selected workflow handler.
 
 ### /checkpoints
 
 View all the checkpoints currently set in comfy server.
-
-### /handlers
-
-View all supported handler, the list is buttons, pressing a button will set the current handler as selected.
 
 ### /q-status
 
