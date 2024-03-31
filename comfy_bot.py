@@ -56,7 +56,7 @@ async def on_message(message):
 
     if len(message.attachments) > 0:
         for attachment in message.attachments:
-            ans =""
+            ans = ""
             if attachment.content_type.startswith('image'):
                 ans = "{}\n<{}>".format(ans, attachment.url)
             if len(ans) > 0:
