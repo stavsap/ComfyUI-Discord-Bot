@@ -12,6 +12,21 @@ This node should input the final images of the workflow, sending images to this 
 
 ![pic](../.meta/save-to-socket-node.png)
 
+```json
+  "save_image_websocket_node": {
+    "inputs": {
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImageWebsocket",
+    "_meta": {
+      "title": "SaveImageWebsocket"
+    }
+  }
+```
+
 # Built In Handlers
 
 ## Text 2 Image

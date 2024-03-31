@@ -1,3 +1,3 @@
-from .handlers import TxtToImageHandler, ImgToImageHandler
+from .handlers import TxtToImageHandler, ImgToImageHandler, InstantIDFaceHandler
 
-__all__ = ['TxtToImageHandler', 'ImgToImageHandler']
+__all__ = ['TxtToImageHandler', 'ImgToImageHandler', 'InstantIDFaceHandler']
