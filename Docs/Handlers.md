@@ -16,11 +16,13 @@ This node should input the final images of the workflow, sending images to this 
 
 ## Text 2 Image
 
-Simple basic workflow that not requires any additional extra custom nodes.
+Simple basic workflow that does not require any additional custom nodes.
 
 
 ## Image 2 Image
 
 Basic image to image workflow.
+
+Image is given as a url via --url flag.
 
 Requires: https://github.com/glowcone/comfyui-load-image-from-url custom node to be able to load images from urls.
