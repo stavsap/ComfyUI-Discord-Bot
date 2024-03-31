@@ -96,4 +96,4 @@ View the current queue information and the running and the pending prompt ids.
 
 ## Uploading Images
 
-TODO
+Uploading any images to the bot will result in corresponding ordered url links for the image. this urls can be used for workloads that can load image via url.
