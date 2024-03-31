@@ -1,15 +1,15 @@
+import asyncio
 import os
 import io
 import discord
 from discord import File
 from discord.ext import commands
 import uuid
-import re
 from discord.ui import View, Button
 
 from bot_db import BotDB
 from comfy_handlers_manager import ComfyHandlersManager, ComfyHandlersContext
-from comfy_client import ComfyClient
+from comfy_client import ComfyClient, QueuePromptResult
 from common import get_logger
 
 intents = discord.Intents.default()
@@ -57,8 +57,7 @@ async def on_message(message):
     if len(message.attachments) > 0:
         for attachment in message.attachments:
             if attachment.content_type.startswith('image'):
-                # print(attachment.url)
-                pass
+                await message.channel.send("```{}```".format(attachment.url))
 
     if message.content.startswith("!help"):
         await message.channel.send("Hi, use '/' commands")
@@ -81,19 +80,44 @@ async def on_message(message):
     # await message.channel.send("Here's a picture!", file=picture)
 
 
-@bot.slash_command(name="q", description="Submit a prompt to current workflow handler")
-async def prompt(ctx, message):
-    prompt_handler = ComfyHandlersManager().get_current_handler()
-    p = prompt_handler.handle(process_message(message))
-    await ctx.respond("Prompt received...")
-    images = await ComfyClient().get_images(p, ctx, prompt_handler)
+queue_prompt_results: QueuePromptResult = []
 
+
+def handle_queue_prompt_result(ctx, p, prompt_handler, res: QueuePromptResult):
+    res.ctx = ctx
+    res.prompt = p
+    res.prompt_handler = prompt_handler
+    queue_prompt_results.append(res)
+
+
+async def publish_images():
+    while True:
+        await asyncio.sleep(1)
+        if len(queue_prompt_results) > 0:
+            await handle_prompt_queue_result(queue_prompt_results.pop(0))
+
+
+bot.loop.create_task(publish_images())
+
+
+async def handle_prompt_queue_result(queue_prompt_result: QueuePromptResult):
+    prompt_id = queue_prompt_result.prompt_id
+    ctx = queue_prompt_result.ctx
+    images = queue_prompt_result.images
+    prompt_handler = queue_prompt_result.prompt_handler
+    await ctx.respond("Completed prompt: {}\n{}".format(prompt_id, prompt_handler.describe(queue_prompt_result.prompt)))
     for node_id, image_list in images.items():
         imgs = [File(filename=str(uuid.uuid4()) + ".png", fp=io.BytesIO(image_data)) for image_data in image_list]
         for img in imgs:
-            await ctx.send("", file=img)
+            await ctx.respond("", file=img)
 
-    await ctx.send("All complete")
+
+@bot.slash_command(name="q", description="Submit a prompt to current workflow handler")
+async def q(ctx: discord.commands.context.ApplicationContext, message):
+    prompt_handler = ComfyHandlersManager().get_current_handler()
+    p = prompt_handler.handle(process_message(message))
+    await ctx.defer()
+    ComfyClient().queue_prompt(p, lambda res: handle_queue_prompt_result(ctx, p, prompt_handler, res))
 
 
 @bot.slash_command(name="ref-set", description="Set a reference value")
@@ -201,7 +225,13 @@ async def handlers(ctx):
 
 @bot.slash_command(name="q-status", description="Get queue status")
 async def queue_status(ctx):
-    response = "{}\n{}".format(ComfyClient().get_queue(), ComfyClient().get_prompt())
+    queue_data = ComfyClient().get_queue()
+    ids = ""
+    for data in queue_data['queue_running']:
+        ids = "{}\n{}".format(ids, data[1])
+    for data in queue_data['queue_pending']:
+        ids = "{}\n{}".format(ids, data[1])
+    response = "{}\n{}".format(ComfyClient().get_prompt(), ids)
     await ctx.respond(response)
 
 
