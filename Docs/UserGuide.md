@@ -52,12 +52,16 @@ TODO describe
 
 ### /checkpoints
 
-TODO describe
+View all the checkpoints currently set in comfy server.
 
 ### /handlers
 
-TODO describe
+View all supported handler, the list is buttons, pressing a button will set the current handler as selected.
 
 ### /q-status
 
-TODO describe
+View the current queue information and the running and the pending prompt ids.
+
+## Uploading Images
+
+TODO
