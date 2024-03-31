@@ -4,7 +4,7 @@ TXT_TO_IMAGE_PROMPT = """
     "3": {
         "class_type": "KSampler",
         "inputs": {
-            "cfg": 8,
+            "cfg": 7,
             "denoise": 1,
             "latent_image": [
                 "5",
@@ -25,7 +25,7 @@ TXT_TO_IMAGE_PROMPT = """
             "sampler_name": "euler",
             "scheduler": "normal",
             "seed": 123456789,
-            "steps": 5
+            "steps": 25
         }
     },
     "4": {
@@ -37,9 +37,9 @@ TXT_TO_IMAGE_PROMPT = """
     "5": {
         "class_type": "EmptyLatentImage",
         "inputs": {
-            "batch_size": 2,
-            "height": 512,
-            "width": 512
+            "batch_size": 1,
+            "height": 768,
+            "width": 768
         }
     },
     "6": {
@@ -49,7 +49,7 @@ TXT_TO_IMAGE_PROMPT = """
                 "4",
                 1
             ],
-            "text": "masterpiece best quality girl"
+            "text": ""
         }
     },
     "7": {
@@ -59,7 +59,7 @@ TXT_TO_IMAGE_PROMPT = """
                 "4",
                 1
             ],
-            "text": "bad hands"
+            "text": ""
         }
     },
     "8": {

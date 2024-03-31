@@ -27,12 +27,13 @@ class TxtToImageHandler:
 
         positive_prompt = self._clean_from_flags(message)
 
-        prompt["6"]["inputs"]["text"] = positive_prompt
+        parts = positive_prompt.split("!neg!", maxsplit=1)
 
-        self._res("768:768", prompt)
-        self._batch("1", prompt)
-        self._steps("25", prompt)
-        self._cfg("7", prompt)
+        prompt["6"]["inputs"]["text"] = parts[0]
+
+        if len(parts) > 1:
+            prompt["7"]["inputs"]["text"] = parts[1]
+
         self._seed(str(random.randint(1, 2 ** 64)), prompt)
 
         for flagTuple in flags:
@@ -42,44 +43,60 @@ class TxtToImageHandler:
         return prompt
 
     def describe(self, prompt):
-        seed = prompt["3"]["inputs"]["seed"]
-        steps = prompt["3"]["inputs"]["steps"]
-        cfg = prompt["3"]["inputs"]["cfg"]
+        seed = str(prompt["3"]["inputs"]["seed"])
+        steps = str(prompt["3"]["inputs"]["steps"])
+        cfg = str(prompt["3"]["inputs"]["cfg"])
         checkpoint = prompt["4"]["inputs"]["ckpt_name"]
-        batch = prompt["5"]["inputs"]["batch_size"]
-        res = prompt["5"]["inputs"]["height"] + ":" + prompt["5"]["inputs"]["width"]
+        batch = str(prompt["5"]["inputs"]["batch_size"])
+        res = str(prompt["5"]["inputs"]["height"]) + ":" + str(prompt["5"]["inputs"]["width"])
+        sampler = prompt["3"]["inputs"]["sampler_name"]
+        scheduler = prompt["3"]["inputs"]["scheduler"]
 
         description = f'''
 checkpoint: {checkpoint}
-cfg: {cfg}
-steps: {steps}
 seed: {seed}
-batch: {batch}
 resolution: {res}
+steps: {steps}
+cfg: {cfg}
+batch: {batch}
+sampler: {sampler}
+scheduler: {scheduler}
 '''
         return description
 
     def info(self):
+        prompt = json.loads(self.workflow_as_text)
+        steps = str(prompt["3"]["inputs"]["steps"])
+        cfg = str(prompt["3"]["inputs"]["cfg"])
+        checkpoint = prompt["4"]["inputs"]["ckpt_name"]
+        batch = str(prompt["5"]["inputs"]["batch_size"])
+        res = str(prompt["5"]["inputs"]["height"]) + ":" + str(prompt["5"]["inputs"]["width"])
+        sampler = prompt["3"]["inputs"]["sampler_name"]
+        scheduler = prompt["3"]["inputs"]["scheduler"]
         return f'''
-workflow: {self.key()} 
+# Handler: {self.key()} 
 
-supported flags:
+## Supported flags:
 
---res: Y:X, where Y is height and X is width. 768:768 if not present.
+**--res**: `height:width`, `{res}` default.
 
---cfg: the CFG value, 7 if not present.
+**--cfg**: the CFG value, `{cfg}` default.
 
---steps: # of steps, 25 if not present.
+**--steps**: # of steps, `{steps}` default.
 
---seed: seed value, random if not present.
+**--seed**: seed value, `random` default.
 
---batch: the batch size, 1 if not present.
+**--batch**: the batch size, `{batch}` default.
 
---ckpt: the checkpoint to use, sdxl\\\Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors if not present.
+**--ckpt**: the checkpoint to use, `{checkpoint}` default.
 
---schd: the scheduler to use, normal if not present.
+**--schd**: the scheduler to use, `{scheduler}` default.
 
---sampler: the sampler to use, euler if not present.
+**--sampler**: the sampler to use, `{sampler}` default.
+
+## Special tokens:
+
+`!neg!` - will split the message into positive/negative prompts.
 '''
 
     def key(self):

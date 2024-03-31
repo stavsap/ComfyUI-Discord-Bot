@@ -18,6 +18,28 @@ This node should input the final images of the workflow, sending images to this 
 
 Simple basic workflow that does not require any additional custom nodes.
 
+#### Supported Flags:
+
+Flags can be added to the message to control specific parameters in the prompts that will be passed to comfy. The flags and their values will be omitted from the final prompts.
+
+| Flag      | Description                                                     | Default                                                |
+|-----------|-----------------------------------------------------------------|--------------------------------------------------------|
+| --res     | resolution in format of `height:width`                          | 768x768                                                |
+| --steps   | amount of steps `[1:]`                                       | 25                                                     |
+| --seed    | seed value `int`                                                | random                                                 |
+| --cfg     | CFG value `int`                                                 | 7                                                      |
+| --batch   | the amount of images to generate `[1:]`                      | 1                                                      |
+| --ckpt    | the path to the checkpoint in comfy `models/checkpoint` folder. | sdxl\Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors |
+| --sampler | the sampler to use `supported name`                             | euler                                                  |
+| --schd    | the scheduler to use `supported name`                           | normal                                                 |
+
+#### Special tokens
+
+| Token | Description                                                                                                                                                                                          |
+|-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| !neg! | if this token present in the message it will split the message into 2 parts. first part will be positive prompt, the second one negative. if not present message is considered positive prompt only. | 
+
+
 
 ## Image 2 Image
 
