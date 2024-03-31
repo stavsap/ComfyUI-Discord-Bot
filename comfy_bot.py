@@ -104,6 +104,7 @@ bot.loop.create_task(publish_images())
 
 
 async def handle_prompt_queue_result(queue_prompt_result: QueuePromptResult):
+    # TODO add error handling
     prompt_id = queue_prompt_result.prompt_id
     ctx = queue_prompt_result.ctx
     images = queue_prompt_result.images
@@ -117,10 +118,18 @@ async def handle_prompt_queue_result(queue_prompt_result: QueuePromptResult):
 
 @bot.slash_command(name="q", description="Submit a prompt to current workflow handler")
 async def q(ctx: discord.commands.context.ApplicationContext, message):
-    prompt_handler = ComfyHandlersManager().get_current_handler()
-    p = prompt_handler.handle(process_message(message))
     await ctx.defer()
-    ComfyClient().queue_prompt(p, lambda res: handle_queue_prompt_result(ctx, p, prompt_handler, res))
+    prompt_handler = ComfyHandlersManager().get_current_handler()
+    try:
+        p = prompt_handler.handle(process_message(message))
+    except:
+        await ctx.respond("```failed to process given message```")
+        return
+    try:
+        ComfyClient().queue_prompt(p, lambda res: handle_queue_prompt_result(ctx, p, prompt_handler, res))
+    except:
+        await ctx.respond("```failed to queue given message```")
+        return
 
 
 @bot.slash_command(name="ref-set", description="Set a reference value")
