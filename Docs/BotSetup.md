@@ -25,7 +25,3 @@
 2. in the scopes, check "bot"
 3. in the new permission section select wanted permissions, this permissions will be displayed for the join window when adding the bot to server.
 4. see in the "GENERATED URL" section your current url wih all your options checked, this url now can be used to invit the application bot to servers.
-
-## Tutorials
-
-- [find you server guild id](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-)
