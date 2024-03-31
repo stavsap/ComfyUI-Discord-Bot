@@ -8,7 +8,11 @@ Just type '/' and you should be able to see the list of all commands under you B
 
 ### /q {message}
 
-Queue a workflow of the current handler with a given message. The message should contain all the required information and syntax for the current handler.
+Queue a workflow of the current handler with a given message. The message should contain all the required information and syntax for the current handler. 
+
+To make efficient prompting without the need to deal with long repeating prompts check the [prefix](#prefix-prefix), [postfix](#postfix-postfix) and [refs](#ref-set-ref-value) features.
+
+The message will be processed by appending a prefix if set to the beginning of the message then appending the postfix if set to the end of the message, then the message`s refs will be replaced with their corresponding value.
 
 ### /ref-set {ref} {value}
 
@@ -38,13 +42,13 @@ a robot --res 1024:768 --cfg 5 --steps 40
 
 The refs are stored per handler.
 
-restrictions: the ref-name cant include '#' char or white spaces!.
+**restrictions**: the given ref-name can`t include '#' char or white spaces!.
 
 ### /ref-del {ref}
 
 Remove a certain ref by name. 
 
-restrictions: the ref-name cant include '#' char or white spaces!.
+**restrictions**: the given ref-name cant include '#' char or white spaces!.
 
 ### /ref-view 
 
@@ -52,7 +56,7 @@ View all current ref tuples.
 
 ### /prefix {prefix}
 
-This will append a constant prefix in the beginning of a given message, prefix can include ref #`s and they will be handled accordingly. 
+This will append a constant prefix in the beginning of a given message, prefix can include refs, and they will be handled accordingly. 
 
 The prefix is stored per handler.
 
@@ -66,7 +70,7 @@ Will display the current prefix if any set.
 
 ### /postfix {postfix}
 
-This will append a constant postfix in the end of a given message, postfix can include ref #`s and they will be handled accordingly. 
+This will append a constant postfix in the end of a given message, postfix can include refs, and they will be handled accordingly. 
 
 The postfix is stored per handler.
 
