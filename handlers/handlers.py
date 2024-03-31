@@ -157,10 +157,13 @@ class ImgToImageHandler:
 
         positive_prompt = self._clean_from_flags(message)
 
-        prompt["6"]["inputs"]["text"] = positive_prompt
+        parts = positive_prompt.split("!neg!", maxsplit=1)
 
-        self._steps("25", prompt)
-        self._cfg("7", prompt)
+        prompt["6"]["inputs"]["text"] = parts[0]
+
+        if len(parts) > 1:
+            prompt["7"]["inputs"]["text"] = parts[1]
+
         self._seed(str(random.randint(1, 2 ** 64)), prompt)
 
         for flagTuple in flags:
@@ -170,40 +173,60 @@ class ImgToImageHandler:
         return prompt
 
     def describe(self, prompt):
-        seed = prompt["3"]["inputs"]["seed"]
-        steps = prompt["3"]["inputs"]["steps"]
-        cfg = prompt["3"]["inputs"]["cfg"]
+        seed = str(prompt["3"]["inputs"]["seed"])
+        steps = str(prompt["3"]["inputs"]["steps"])
+        cfg = str(prompt["3"]["inputs"]["cfg"])
         checkpoint = prompt["4"]["inputs"]["ckpt_name"]
+        sampler = prompt["3"]["inputs"]["sampler_name"]
+        scheduler = prompt["3"]["inputs"]["scheduler"]
+        url = prompt["10"]["inputs"]["url"]
+        denoise = str(prompt["3"]["inputs"]["denoise"])
 
         description = f'''
 checkpoint: {checkpoint}
-cfg: {cfg}
-steps: {steps}
 seed: {seed}
+steps: {steps}
+cfg: {cfg}
+sampler: {sampler}
+scheduler: {scheduler}
+denoise: {denoise}
+url: {url}
 '''
         return description
 
     def info(self):
+        prompt = json.loads(self.workflow_as_text)
+        steps = str(prompt["3"]["inputs"]["steps"])
+        cfg = str(prompt["3"]["inputs"]["cfg"])
+        checkpoint = prompt["4"]["inputs"]["ckpt_name"]
+        sampler = prompt["3"]["inputs"]["sampler_name"]
+        scheduler = prompt["3"]["inputs"]["scheduler"]
+        url = prompt["10"]["inputs"]["url"]
+        denoise = str(prompt["3"]["inputs"]["denoise"])
         return f'''
-workflow: {self.key()} 
+# Handler: {self.key()} 
 
-supported flags:
+## Supported flags:
 
---url: url to the source image.
+**--cfg**: the CFG value, `{cfg}` default.
 
---denoise: set denoise level with generation and source image. near 0 is more source image, more to 1 is more generation.
+**--steps**: # of steps, `{steps}` default.
 
---cfg: the CFG value, 7 if not present.
+**--seed**: seed value, `random` default.
 
---steps: # of steps, 25 if not present.
+**--ckpt**: the checkpoint to use, `{checkpoint}` default.
 
---seed: seed value, random if not present.
+**--schd**: the scheduler to use, `{scheduler}` default.
 
---ckpt: the checkpoint to use, sdxl\\\Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors if not present.
+**--sampler**: the sampler to use, `{sampler}` default.
 
---schd: the scheduler to use, normal if not present.
+**--url**: the url to input image, `{url}` default.
 
---sampler: the sampler to use, euler if not present.
+**--denoise**: the denoise value, `{denoise}` default.
+
+## Special tokens:
+
+`!neg!` - will split the message into positive/negative prompts.
 '''
 
     def key(self):

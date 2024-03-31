@@ -94,9 +94,9 @@ IMG_TO_IMG_PROMPT = """
       "seed": 333592799566352,
       "steps": 20,
       "cfg": 8,
-      "sampler_name": "euler",
+      "sampler_name": "dpmpp_2m",
       "scheduler": "normal",
-      "denoise": 0.5,
+      "denoise": 0.87,
       "model": [
         "4",
         0
@@ -130,7 +130,7 @@ IMG_TO_IMG_PROMPT = """
   },
   "6": {
     "inputs": {
-      "text": "a fox in  a bottle, desert, sand hot",
+      "text": "",
       "clip": [
         "4",
         1
@@ -143,7 +143,7 @@ IMG_TO_IMG_PROMPT = """
   },
   "7": {
     "inputs": {
-      "text": "text, watermark",
+      "text": "",
       "clip": [
         "4",
         1
@@ -172,7 +172,7 @@ IMG_TO_IMG_PROMPT = """
   },
   "10": {
     "inputs": {
-      "url": "https://cdn.discordapp.com/attachments/1222638260589690991/1223227894533455872/sdxlturbo_example.png?ex=661916c0&is=6606a1c0&hm=8ca6ecddcbb298eec1f5a3b672303991bbbcea2f10a21d6b1e86a585b63af427&"
+      "url": "https://raw.githubusercontent.com/comfyanonymous/ComfyUI/master/input/example.png"
     },
     "class_type": "LoadImageFromUrl",
     "_meta": {

@@ -49,6 +49,30 @@ Image is given as a url via --url flag.
 
 Requires: https://github.com/glowcone/comfyui-load-image-from-url custom node to be able to load images from urls.
 
+**Note**: the resolution is set by the input image!
+
+#### Supported Flags:
+
+Flags can be added to the message to control specific parameters in the prompts that will be passed to comfy. The flags and their values will be omitted from the final prompts.
+
+| Flag      | Description                                                     | Default                                                                           |
+|-----------|-----------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| --steps   | amount of steps `[1:]`                                          | 20                                                                                |
+| --seed    | seed value `int`                                                | random                                                                            |
+| --cfg     | CFG value `int`                                                 | 8                                                                                 |
+| --ckpt    | the path to the checkpoint in comfy `models/checkpoint` folder. | sdxl\Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors                            |
+| --sampler | the sampler to use `supported name`                             | dpmpp_2m                                                                          |
+| --schd    | the scheduler to use `supported name`                           | normal                                                                            |
+| --url     | the url to source image `valid url`                             | https://raw.githubusercontent.com/comfyanonymous/ComfyUI/master/input/example.png |
+| --denoise | the denoise to use `[0:1]`                                      | 0.87                                                                              |
+
+#### Special tokens
+
+| Token | Description                                                                                                                                                                                          |
+|-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| !neg! | if this token present in the message it will split the message into 2 parts. first part will be positive prompt, the second one negative. if not present message is considered positive prompt only. | 
+
+
 # Custom Handlers
 
 The bot supports in loading dynamically handlers from the `custom_handlers` folder. just put your handlers module in similar way to the built-in [handlers](../handlers/) module.
