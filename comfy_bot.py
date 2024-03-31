@@ -56,8 +56,11 @@ async def on_message(message):
 
     if len(message.attachments) > 0:
         for attachment in message.attachments:
+            ans =""
             if attachment.content_type.startswith('image'):
-                await message.channel.send("```{}```".format(attachment.url))
+                ans = "{}\n<{}>".format(ans, attachment.url)
+            if len(ans) > 0:
+                await message.channel.send(ans)
 
     if message.content.startswith("!help"):
         await message.channel.send("Hi, use '/' commands")
