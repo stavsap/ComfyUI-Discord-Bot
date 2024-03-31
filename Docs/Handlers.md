@@ -48,3 +48,9 @@ Basic image to image workflow.
 Image is given as a url via --url flag.
 
 Requires: https://github.com/glowcone/comfyui-load-image-from-url custom node to be able to load images from urls.
+
+# Custom Handlers
+
+The bot supports in loading dynamically handlers from the `custom_handlers` folder. just put your handlers module in similar way to the built-in [handlers](../handlers/) module.
+
+If your module is a git repo, just git clone into the `custom_handlers` folder and reboot the bot.
