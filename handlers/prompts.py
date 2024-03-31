@@ -384,7 +384,7 @@ INSTANT_ID_BASIC = """
   },
   "67": {
     "inputs": {
-      "url": "https://cdn.discordapp.com/attachments/1222638260589690991/1223988444867465288/IMG_5892.jpg?ex=661bdb11&is=66096611&hm=8fe40dbaaa5cb7ca18962ea69b3b19d5a7b0327522b461f5e74932f6797a5850&"
+      "url": "https://raw.githubusercontent.com/stavsap/ComfyUI-Discord-Bot/19b050360d36e076c33460dd327587561d23adcc/.meta/man.png"
     },
     "class_type": "LoadImageFromUrl",
     "_meta": {
