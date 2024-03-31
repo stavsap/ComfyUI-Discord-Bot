@@ -19,10 +19,7 @@ logger = get_logger("ComfyBOT")
 
 
 def process_message(message):
-    # TODO optimize by finding the hash tags and replace only them
-    # hashtag_pattern = r'#\w+'
-    # hashtags = re.findall(hashtag_pattern, message)
-
+    # TODO optimize if possible.
     prefix = ComfyHandlersContext().get_prefix(ComfyHandlersManager().get_current_handler().key())
     postfix = ComfyHandlersContext().get_postfix(ComfyHandlersManager().get_current_handler().key())
     if prefix is not None:
@@ -50,9 +47,6 @@ async def on_message(message):
     # Check if the message is from a user and not the bot itself
     if message.author == bot.user:
         return
-    #
-    # print(str(len(message.attachments)))
-    # print(message.attachments[0].content_type)
 
     if len(message.attachments) > 0:
         for attachment in message.attachments:
@@ -62,25 +56,8 @@ async def on_message(message):
             if len(ans) > 0:
                 await message.channel.send(ans)
 
-    if message.content.startswith("!help"):
+    if message.content.startswith("help"):
         await message.channel.send("Hi, use '/' commands")
-    # Check if the message starts with a specific command or trigger
-    # async def rerun(interaction):
-    #     print(interaction.custom_id)
-    #     await interaction.response.send_message("")
-    #
-    # view = View()
-    # btn = Button(label="Again!", style=discord.ButtonStyle.green, custom_id="test_button")
-    # btn.callback = rerun
-    # view.add_item(btn)
-    # await message.channel.send("", view=view)
-
-    # # Open the image file
-    # with open("example.png", "rb") as f:
-    #     picture = discord.File(f)
-    #
-    # # Send the message with the picture attached
-    # await message.channel.send("Here's a picture!", file=picture)
 
 
 queue_prompt_results: QueuePromptResult = []
