@@ -1,10 +1,12 @@
-import re
+import re, json
 import importlib
 
 from bot_db import BotDB
 from comfy_client import ComfyClient
 from comfy_handlers_manager import ComfyHandlersManager
 from handlers import ImgToImageHandler
+from handlers.handlers import FlagsHandler, identity
+from handlers.prompts import TXT_TO_IMAGE_PROMPT
 
 text ="a dragon --res 1024:768 running in a forest"
 
@@ -47,3 +49,15 @@ res = BotDB().get_all_handler_reference("key")
 print(res)
 
 BotDB().remove_all_handler_reference("key")
+
+prompt = json.loads(TXT_TO_IMAGE_PROMPT)
+
+fHandler = FlagsHandler()
+
+fHandler.set_flags("seed", [["3","inputs","seed"]], identity)
+
+print(fHandler.get_value("seed", prompt))
+
+fHandler.manipulate_prompt("seed","2", prompt)
+
+print(fHandler.get_value("seed", prompt))
