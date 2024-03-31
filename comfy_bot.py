@@ -109,6 +109,7 @@ async def handle_prompt_queue_result(queue_prompt_result: QueuePromptResult):
     ctx = queue_prompt_result.ctx
     images = queue_prompt_result.images
     prompt_handler = queue_prompt_result.prompt_handler
+    # TODO handle describe more then 2000 chars...
     await ctx.respond("Completed prompt: {}\n{}".format(prompt_id, prompt_handler.describe(queue_prompt_result.prompt)))
     for node_id, image_list in images.items():
         imgs = [File(filename=str(uuid.uuid4()) + ".png", fp=io.BytesIO(image_data)) for image_data in image_list]
