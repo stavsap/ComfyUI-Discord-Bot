@@ -49,6 +49,12 @@ class FlagsHandler:
             return self._get_value(path, prompt)
         return None
 
+    def clean_from_flags(self, text):
+        return re.sub(self.FLAG_REGEX, '', text).strip()
+
+    def extract_flags(self, text):
+        return re.findall(self.FLAG_REGEX, text)
+
     def _set_value(self, path, prompt, value):
         ref = prompt
         for key in path[:-1]:
@@ -61,16 +67,10 @@ class FlagsHandler:
             ref = ref[key]
         return ref[path[-1]]
 
-    def clean_from_flags(self, text):
-        return re.sub(self.FLAG_REGEX, '', text).strip()
-
-    def extract_flags(self, text):
-        return re.findall(self.FLAG_REGEX, text)
-
 
 class TxtToImageHandler:
-
     _neg_token = '!neg!'
+
     def __init__(self):
         self.workflow_as_text = TXT_TO_IMAGE_PROMPT
         self._flags_handler = FlagsHandler(r'--(\w+)\s+([^\s]+)')
@@ -170,51 +170,53 @@ scheduler: {scheduler}
 
 
 class ImgToImageHandler:
+    _neg_token = '!neg!'
+
     def __init__(self):
-        self.flags_funcs = {
-            'steps': self._steps,
-            'seed': self._seed,
-            'cfg': self._cfg,
-            'ckpt': self._ckpt,
-            'schd': self._schd,
-            'sampler': self._sampler,
-            'url': self._url,
-            'denoise': self._denoise,
-        }
         self.workflow_as_text = IMG_TO_IMG_PROMPT
-        self.FLAG_REGEX = r'--(\w+)\s+([^\s]+)'
+        self._flags_handler = FlagsHandler(r'--(\w+)\s+([^\s]+)')
+        self._flags_handler.set_flags("steps", [["3", "inputs", "steps"]])
+        self._flags_handler.set_flags("seed", [["3", "inputs", "seed"]])
+        self._flags_handler.set_flags("cfg", [["3", "inputs", "cfg"]])
+        self._flags_handler.set_flags("ckpt", [["4", "inputs", "ckpt_name"]])
+        self._flags_handler.set_flags("sampler", [["3", "inputs", "sampler_name"]])
+        self._flags_handler.set_flags("schd", [["3", "inputs", "scheduler"]])
+        self._flags_handler.set_flags("denoise", [["3", "inputs", "denoise"]])
+        self._flags_handler.set_flags("url", [["10", "inputs", "url"]])
+        self._flags_handler.set_flags("positive-prompt", [["6", "inputs", "text"]])
+        self._flags_handler.set_flags("negative-prompt", [["7", "inputs", "text"]])
 
     def handle(self, message):
         prompt = json.loads(self.workflow_as_text)
 
-        flags = self._extract_flags(message)
+        flags = self._flags_handler.extract_flags(message)
 
-        positive_prompt = self._clean_from_flags(message)
+        positive_prompt = self._flags_handler.clean_from_flags(message)
 
-        parts = positive_prompt.split("!neg!", maxsplit=1)
+        parts = positive_prompt.split(self._neg_token, maxsplit=1)
 
-        prompt["6"]["inputs"]["text"] = parts[0]
+        self._flags_handler.manipulate_prompt("positive-prompt", parts[0], prompt)
 
         if len(parts) > 1:
-            prompt["7"]["inputs"]["text"] = parts[1]
+            self._flags_handler.manipulate_prompt("negative-prompt", parts[1], prompt)
 
-        self._seed(str(random.randint(1, 2 ** 64)), prompt)
+        self._flags_handler.manipulate_prompt("seed", str(random.randint(1, 2 ** 64)), prompt)
 
         for flagTuple in flags:
-            self.flags_funcs[flagTuple[0]](flagTuple[1], prompt)
+            self._flags_handler.manipulate_prompt(flagTuple[0], flagTuple[1], prompt)
             pass
 
         return prompt
 
     def describe(self, prompt):
-        seed = str(prompt["3"]["inputs"]["seed"])
-        steps = str(prompt["3"]["inputs"]["steps"])
-        cfg = str(prompt["3"]["inputs"]["cfg"])
-        checkpoint = prompt["4"]["inputs"]["ckpt_name"]
-        sampler = prompt["3"]["inputs"]["sampler_name"]
-        scheduler = prompt["3"]["inputs"]["scheduler"]
-        url = prompt["10"]["inputs"]["url"]
-        denoise = str(prompt["3"]["inputs"]["denoise"])
+        seed = str(self._flags_handler.get_value("seed", prompt))
+        steps = str(self._flags_handler.get_value("steps", prompt))
+        cfg = str(self._flags_handler.get_value("cfg", prompt))
+        checkpoint = self._flags_handler.get_value("ckpt", prompt)
+        sampler = self._flags_handler.get_value("sampler", prompt)
+        scheduler = self._flags_handler.get_value("schd", prompt)
+        url = self._flags_handler.get_value("url", prompt)
+        denoise = str(self._flags_handler.get_value("denoise", prompt))
 
         description = f'''
 checkpoint: {checkpoint}
@@ -230,13 +232,13 @@ url: {url}
 
     def info(self):
         prompt = json.loads(self.workflow_as_text)
-        steps = str(prompt["3"]["inputs"]["steps"])
-        cfg = str(prompt["3"]["inputs"]["cfg"])
-        checkpoint = prompt["4"]["inputs"]["ckpt_name"]
-        sampler = prompt["3"]["inputs"]["sampler_name"]
-        scheduler = prompt["3"]["inputs"]["scheduler"]
-        url = prompt["10"]["inputs"]["url"]
-        denoise = str(prompt["3"]["inputs"]["denoise"])
+        steps = str(self._flags_handler.get_value("steps", prompt))
+        cfg = str(self._flags_handler.get_value("cfg", prompt))
+        checkpoint = self._flags_handler.get_value("ckpt", prompt)
+        sampler = self._flags_handler.get_value("sampler", prompt)
+        scheduler = self._flags_handler.get_value("schd", prompt)
+        url = self._flags_handler.get_value("url", prompt)
+        denoise = str(self._flags_handler.get_value("denoise", prompt))
         return f'''
 # Handler: {self.key()} 
 
@@ -260,106 +262,82 @@ url: {url}
 
 ## Special tokens:
 
-`!neg!` - will split the message into positive/negative prompts.
+`{self._neg_token}` - will split the message into positive/negative prompts.
 '''
 
     def key(self):
         return "Img2Img"
 
-    def _denoise(self, value, workflow):
-        workflow["3"]["inputs"]["denoise"] = value
-
-    def _url(self, value, workflow):
-        workflow["10"]["inputs"]["url"] = value
-
-    def _steps(self, value, workflow):
-        workflow["3"]["inputs"]["steps"] = value
-
-    def _seed(self, value, workflow):
-        workflow["3"]["inputs"]["seed"] = value
-
-    def _cfg(self, value, workflow):
-        workflow["3"]["inputs"]["cfg"] = value
-
-    def _ckpt(self, value, workflow):
-        workflow["4"]["inputs"]["ckpt_name"] = value
-
-    def _sampler(self, value, workflow):
-        workflow["3"]["inputs"]["sampler_name"] = value
-
-    def _schd(self, value, workflow):
-        workflow["3"]["inputs"]["scheduler"] = value
-
-    def _clean_from_flags(self, text):
-        return re.sub(self.FLAG_REGEX, '', text).strip()
-
-    def _extract_flags(self, text):
-        return re.findall(self.FLAG_REGEX, text)
-
 
 class InstantIDFaceHandler:
-    def __init__(self):
-        self.flags_funcs = {
-            'res': self._res,
-            'batch': self._batch,
-            'steps': self._steps,
-            'seed': self._seed,
-            'cfg': self._cfg,
-            'ckpt': self._ckpt,
-            'schd': self._schd,
-            'sampler': self._sampler,
-            'url': self._url,
-            'denoise': self._denoise,
+    _neg_token = '!neg!'
 
-            'instant_id_model': self._instant_id_model,
-            'instant_id_provider': self._instant_id_provider,
-            'instant_id_weight': self._instant_id_weight,
-            'instant_id_start_at': self._instant_id_start_at,
-            'instant_id_end_at': self._instant_id_end_at,
-            'control_net_model': self._control_net_model,
-        }
+    def __init__(self):
         self.workflow_as_text = INSTANT_ID_BASIC
-        self.FLAG_REGEX = r'--(\w+)\s+([^\s]+)'
+        self._flags_handler = FlagsHandler(r'--(\w+)\s+([^\s]+)')
+        self._flags_handler.set_flags("res", [["5", "inputs", "height"], ["5", "inputs", "width"]],
+                                      convert_func=res_spliter)
+        self._flags_handler.set_flags("batch", [["5", "inputs", "batch_size"]])
+        self._flags_handler.set_flags("steps", [["3", "inputs", "steps"]])
+        self._flags_handler.set_flags("seed", [["3", "inputs", "seed"]])
+        self._flags_handler.set_flags("cfg", [["3", "inputs", "cfg"]])
+        self._flags_handler.set_flags("ckpt", [["4", "inputs", "ckpt_name"]])
+        self._flags_handler.set_flags("sampler", [["3", "inputs", "sampler_name"]])
+        self._flags_handler.set_flags("schd", [["3", "inputs", "scheduler"]])
+        self._flags_handler.set_flags("denoise", [["3", "inputs", "denoise"]])
+        self._flags_handler.set_flags("url", [["67", "inputs", "url"]])
+
+        self._flags_handler.set_flags("instant_id_model", [["11", "inputs", "instantid_file"]])
+        self._flags_handler.set_flags("instant_id_provider", [["38", "inputs", "provider"]])
+
+        self._flags_handler.set_flags("instant_id_weight", [["60", "inputs", "weight"]])
+        self._flags_handler.set_flags("instant_id_start_at", [["60", "inputs", "start_at"]])
+        self._flags_handler.set_flags("instant_id_end_at", [["60", "inputs", "end_at"]])
+
+        self._flags_handler.set_flags("control_net_model", [["16", "inputs", "control_net_name"]])
+
+        self._flags_handler.set_flags("positive-prompt", [["39", "inputs", "text"]])
+        self._flags_handler.set_flags("negative-prompt", [["40", "inputs", "text"]])
 
     def handle(self, message):
         prompt = json.loads(self.workflow_as_text)
 
-        flags = self._extract_flags(message)
+        flags = self._flags_handler.extract_flags(message)
 
-        positive_prompt = self._clean_from_flags(message)
+        positive_prompt = self._flags_handler.clean_from_flags(message)
 
-        parts = positive_prompt.split("!neg!", maxsplit=1)
+        parts = positive_prompt.split(self._neg_token, maxsplit=1)
 
-        prompt["39"]["inputs"]["text"] = parts[0]
+        self._flags_handler.manipulate_prompt("positive-prompt", parts[0], prompt)
 
         if len(parts) > 1:
-            prompt["40"]["inputs"]["text"] = parts[1]
+            self._flags_handler.manipulate_prompt("negative-prompt", parts[1], prompt)
 
-        self._seed(str(random.randint(1, 2 ** 64)), prompt)
+        self._flags_handler.manipulate_prompt("seed", str(random.randint(1, 2 ** 64)), prompt)
 
         for flagTuple in flags:
-            self.flags_funcs[flagTuple[0]](flagTuple[1], prompt)
+            self._flags_handler.manipulate_prompt(flagTuple[0], flagTuple[1], prompt)
             pass
 
         return prompt
 
     def describe(self, prompt):
-        seed = str(prompt["3"]["inputs"]["seed"])
-        steps = str(prompt["3"]["inputs"]["steps"])
-        cfg = str(prompt["3"]["inputs"]["cfg"])
-        checkpoint = prompt["4"]["inputs"]["ckpt_name"]
-        batch = str(prompt["5"]["inputs"]["batch_size"])
-        res = str(prompt["5"]["inputs"]["height"]) + ":" + str(prompt["5"]["inputs"]["width"])
-        sampler = prompt["3"]["inputs"]["sampler_name"]
-        scheduler = prompt["3"]["inputs"]["scheduler"]
-        url = prompt["67"]["inputs"]["url"]
-        denoise = str(prompt["3"]["inputs"]["denoise"])
-        instant_id_model = prompt["11"]["inputs"]["instantid_file"]
-        instant_id_provider = prompt["38"]["inputs"]["provider"]
-        instant_id_weight = prompt["60"]["inputs"]["weight"]
-        instant_id_start_at = prompt["60"]["inputs"]["start_at"]
-        instant_id_end_at = prompt["60"]["inputs"]["end_at"]
-        control_net_model = prompt["16"]["inputs"]["control_net_name"]
+        batch = str(self._flags_handler.get_value("batch", prompt))
+        res = ':'.join([str(num) for num in self._flags_handler.get_values("res", prompt)])
+        seed = str(self._flags_handler.get_value("seed", prompt))
+        steps = str(self._flags_handler.get_value("steps", prompt))
+        cfg = str(self._flags_handler.get_value("cfg", prompt))
+        checkpoint = self._flags_handler.get_value("ckpt", prompt)
+        sampler = self._flags_handler.get_value("sampler", prompt)
+        scheduler = self._flags_handler.get_value("schd", prompt)
+        url = self._flags_handler.get_value("url", prompt)
+        denoise = str(self._flags_handler.get_value("denoise", prompt))
+        instant_id_model = str(self._flags_handler.get_value("instant_id_model", prompt))
+        instant_id_provider = str(self._flags_handler.get_value("instant_id_provider", prompt))
+        instant_id_weight = str(self._flags_handler.get_value("instant_id_weight", prompt))
+        instant_id_start_at = str(self._flags_handler.get_value("instant_id_start_at", prompt))
+        instant_id_end_at = str(self._flags_handler.get_value("instant_id_end_at", prompt))
+        control_net_model = str(self._flags_handler.get_value("control_net_model", prompt))
         description = f'''
 checkpoint: {checkpoint}
 seed: {seed}
@@ -382,21 +360,21 @@ url: {url}
 
     def info(self):
         prompt = json.loads(self.workflow_as_text)
-        steps = str(prompt["3"]["inputs"]["steps"])
-        cfg = str(prompt["3"]["inputs"]["cfg"])
-        checkpoint = prompt["4"]["inputs"]["ckpt_name"]
-        batch = str(prompt["5"]["inputs"]["batch_size"])
-        res = str(prompt["5"]["inputs"]["height"]) + ":" + str(prompt["5"]["inputs"]["width"])
-        sampler = prompt["3"]["inputs"]["sampler_name"]
-        scheduler = prompt["3"]["inputs"]["scheduler"]
-        url = prompt["67"]["inputs"]["url"]
-        denoise = str(prompt["3"]["inputs"]["denoise"])
-        instant_id_model = prompt["11"]["inputs"]["instantid_file"]
-        instant_id_provider = prompt["38"]["inputs"]["provider"]
-        instant_id_weight = prompt["60"]["inputs"]["weight"]
-        instant_id_start_at = prompt["60"]["inputs"]["start_at"]
-        instant_id_end_at = prompt["60"]["inputs"]["end_at"]
-        control_net_model = prompt["16"]["inputs"]["control_net_name"]
+        batch = str(self._flags_handler.get_value("batch", prompt))
+        res = ':'.join([str(num) for num in self._flags_handler.get_values("res", prompt)])
+        steps = str(self._flags_handler.get_value("steps", prompt))
+        cfg = str(self._flags_handler.get_value("cfg", prompt))
+        checkpoint = self._flags_handler.get_value("ckpt", prompt)
+        sampler = self._flags_handler.get_value("sampler", prompt)
+        scheduler = self._flags_handler.get_value("schd", prompt)
+        url = self._flags_handler.get_value("url", prompt)
+        denoise = str(self._flags_handler.get_value("denoise", prompt))
+        instant_id_model = str(self._flags_handler.get_value("instant_id_model", prompt))
+        instant_id_provider = str(self._flags_handler.get_value("instant_id_provider", prompt))
+        instant_id_weight = str(self._flags_handler.get_value("instant_id_weight", prompt))
+        instant_id_start_at = str(self._flags_handler.get_value("instant_id_start_at", prompt))
+        instant_id_end_at = str(self._flags_handler.get_value("instant_id_end_at", prompt))
+        control_net_model = str(self._flags_handler.get_value("control_net_model", prompt))
         return f'''
 # Handler: {self.key()} 
 
@@ -436,64 +414,8 @@ url: {url}
 
 ## Special tokens:
 
-`!neg!` - will split the message into positive/negative prompts.
+`{self._neg_token}` - will split the message into positive/negative prompts.
 '''
 
     def key(self):
         return "InstIDFace"
-
-    def _denoise(self, value, workflow):
-        workflow["3"]["inputs"]["denoise"] = value
-
-    def _url(self, value, workflow):
-        workflow["67"]["inputs"]["url"] = value
-
-    def _res(self, value, workflow):
-        split = value.split(':')
-        workflow["5"]["inputs"]["height"] = split[0]
-        workflow["5"]["inputs"]["width"] = split[1]
-
-    def _batch(self, value, workflow):
-        workflow["5"]["inputs"]["batch_size"] = value
-
-    def _steps(self, value, workflow):
-        workflow["3"]["inputs"]["steps"] = value
-
-    def _seed(self, value, workflow):
-        workflow["3"]["inputs"]["seed"] = value
-
-    def _cfg(self, value, workflow):
-        workflow["3"]["inputs"]["cfg"] = value
-
-    def _ckpt(self, value, workflow):
-        workflow["4"]["inputs"]["ckpt_name"] = value
-
-    def _sampler(self, value, workflow):
-        workflow["3"]["inputs"]["sampler_name"] = value
-
-    def _schd(self, value, workflow):
-        workflow["3"]["inputs"]["scheduler"] = value
-
-    def _instant_id_model(self, value, workflow):
-        workflow["11"]["inputs"]["instantid_file"] = value
-
-    def _instant_id_provider(self, value, workflow):
-        workflow["38"]["inputs"]["provider"] = value
-
-    def _instant_id_weight(self, value, workflow):
-        workflow["60"]["inputs"]["weight"] = value
-
-    def _instant_id_start_at(self, value, workflow):
-        workflow["60"]["inputs"]["start_at"] = value
-
-    def _instant_id_end_at(self, value, workflow):
-        workflow["60"]["inputs"]["end_at"] = value
-
-    def _control_net_model(self, value, workflow):
-        workflow["16"]["inputs"]["control_net_name"] = value
-
-    def _clean_from_flags(self, text):
-        return re.sub(self.FLAG_REGEX, '', text).strip()
-
-    def _extract_flags(self, text):
-        return re.findall(self.FLAG_REGEX, text)
