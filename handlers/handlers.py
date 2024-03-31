@@ -27,8 +27,6 @@ class TxtToImageHandler:
 
         positive_prompt = self._clean_from_flags(message)
 
-        # set the text prompt for our positive CLIPTextEncode
-        # prompt["6"]["inputs"]["text"] = "a legendary dragon, fantasy, digital painting, action shot, masterpiece, 4k"
         prompt["6"]["inputs"]["text"] = positive_prompt
 
         self._res("768:768", prompt)
@@ -142,8 +140,6 @@ class ImgToImageHandler:
 
         positive_prompt = self._clean_from_flags(message)
 
-        # set the text prompt for our positive CLIPTextEncode
-        # prompt["6"]["inputs"]["text"] = "a legendary dragon, fantasy, digital painting, action shot, masterpiece, 4k"
         prompt["6"]["inputs"]["text"] = positive_prompt
 
         self._steps("25", prompt)
