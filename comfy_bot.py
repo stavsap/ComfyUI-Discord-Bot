@@ -122,13 +122,15 @@ async def q(ctx: discord.commands.context.ApplicationContext, message):
     prompt_handler = ComfyHandlersManager().get_current_handler()
     try:
         p = prompt_handler.handle(process_message(message))
-    except:
+    except Exception as e:
         await ctx.respond("```failed to process given message```")
+        logger.error(e)
         return
     try:
         ComfyClient().queue_prompt(p, lambda res: handle_queue_prompt_result(ctx, p, prompt_handler, res))
-    except:
+    except Exception as e:
         await ctx.respond("```failed to queue given message```")
+        logger.error(e)
         return
 
 
