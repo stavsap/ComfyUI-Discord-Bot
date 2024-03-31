@@ -7,7 +7,7 @@ from handlers.prompts import TXT_TO_IMAGE_PROMPT, IMG_TO_IMG_PROMPT
 
 class TxtToImageHandler:
     def __init__(self):
-        self.flags_dic = {
+        self.flags_funcs = {
             'res': self._res,
             'batch': self._batch,
             'steps': self._steps,
@@ -38,7 +38,7 @@ class TxtToImageHandler:
         self._seed(str(random.randint(1, 2 ** 64)), prompt)
 
         for flagTuple in flags:
-            self.flags_dic[flagTuple[0]](flagTuple[1], prompt)
+            self.flags_funcs[flagTuple[0]](flagTuple[1], prompt)
             pass
 
         return prompt
@@ -122,7 +122,7 @@ supported flags:
 
 class ImgToImageHandler:
     def __init__(self):
-        self.flags_dic = {
+        self.flags_funcs = {
             'steps': self._steps,
             'seed': self._seed,
             'cfg': self._cfg,
@@ -151,7 +151,7 @@ class ImgToImageHandler:
         self._seed(str(random.randint(1, 2 ** 64)), prompt)
 
         for flagTuple in flags:
-            self.flags_dic[flagTuple[0]](flagTuple[1], prompt)
+            self.flags_funcs[flagTuple[0]](flagTuple[1], prompt)
             pass
 
         return prompt
@@ -178,7 +178,7 @@ supported flags:
 
 --url: url to the source image.
 
---denoise: set denoise level with generation and source image. near 0 is more source image, more to 1 is generation.
+--denoise: set denoise level with generation and source image. near 0 is more source image, more to 1 is more generation.
 
 --cfg: the CFG value, 7 if not present.
 
