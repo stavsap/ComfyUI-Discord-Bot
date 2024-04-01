@@ -1,33 +1,12 @@
 # Workflow Handlers
 
-TODO
+TODO description
 
-# Nodes required for integration
-
-The following nodes are a must for workflow that is handled by a handler.
-
-## SaveImageWebsocket
-
-This node should input the final images of the workflow, sending images to this node will result in images to be published by the bot back to the user.
-
-![pic](../.meta/save-to-socket-node.png)
-
-```json
-  "save_image_websocket_node": {
-    "inputs": {
-      "images": [
-        "8",
-        0
-      ]
-    },
-    "class_type": "SaveImageWebsocket",
-    "_meta": {
-      "title": "SaveImageWebsocket"
-    }
-  }
-```
 
 # Built In Handlers
+
+1. [Txt 2 Image](#text-2-image)
+2. [Image 2 Image](#image-2-image)
 
 ## Text 2 Image
 
@@ -93,3 +72,29 @@ Flags can be added to the message to control specific parameters in the prompts 
 The bot supports in loading dynamically handlers from the `custom_handlers` folder. just put your handlers module in similar way to the built-in [handlers](../handlers/) module.
 
 If your module is a git repo, just git clone into the `custom_handlers` folder and reboot the bot.
+
+
+## Nodes required for integration
+
+The following nodes are a must for workflow that is handled by a handler.
+
+### SaveImageWebsocket
+
+This node should input the final images of the workflow, sending images to this node will result in images to be published by the bot back to the user.
+
+![pic](../.meta/save-to-socket-node.png)
+
+```json
+  "save_image_websocket_node": {
+    "inputs": {
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImageWebsocket",
+    "_meta": {
+      "title": "SaveImageWebsocket"
+    }
+  }
+```
