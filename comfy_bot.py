@@ -218,6 +218,8 @@ async def handlers(ctx):
     await ctx.send("", view=view)
 
 
+
+
 @bot.slash_command(name="q-status", description="View queue status")
 async def queue_status(ctx):
     queue_data = ComfyClient().get_queue()
@@ -229,6 +231,37 @@ async def queue_status(ctx):
     response = "{}\n{}".format(ComfyClient().get_prompt(), ids)
     await ctx.respond(response)
 
+class HandlerContextModal(discord.ui.Modal):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    async def callback(self, interaction: discord.Interaction):
+        handler_ctx = ComfyHandlersContext()
+        current_handler_key = ComfyHandlersManager().get_current_handler().key()
+
+        handler_ctx.set_prefix(current_handler_key, self.children[0].value)
+        handler_ctx.set_postfix(current_handler_key, self.children[1].value)
+
+        await interaction.response.send_message("`all set!`")
+@bot.slash_command(name="handler-context", description="Set handler constant context")
+async def handler_context(ctx):
+    handler_ctx = ComfyHandlersContext()
+    current_handler_key = ComfyHandlersManager().get_current_handler().key()
+    title = "{} Context".format(current_handler_key[:35])
+
+    modal = HandlerContextModal(title=title)
+
+    modal.add_item(discord.ui.InputText(label="Prefix",
+                                        placeholder="Set message prefix, this will be appended in the beginning of the /q {message}",
+                                        required=False,
+                                        value=handler_ctx.get_prefix(current_handler_key),
+                                        style=discord.InputTextStyle.long))
+    modal.add_item(discord.ui.InputText(label="Postfix",
+                                        placeholder="Set message postfix, this will be appended in the end of the /q {message}",
+                                        required=False,
+                                        value=handler_ctx.get_postfix(current_handler_key),
+                                        style=discord.InputTextStyle.long))
+    await ctx.send_modal(modal)
 
 if __name__ == '__main__':
     token = os.getenv('DISCORD_BOT_API_TOKEN')

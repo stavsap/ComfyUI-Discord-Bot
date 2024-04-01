@@ -18,7 +18,8 @@ The message will be processed by appending a prefix if set to the beginning of t
 
 Will set a reference to a given string value under the given ref-name. This will be set as #<ref-name> and if present in the **/q** {message}, will be replaced with the corresponding value.
 
-For example:
+<details>
+  <summary>Example</summary>
 
 /ref-set 'config' '--res 1024:768 --cfg 5 --steps 40'
 
@@ -39,6 +40,8 @@ will result in message
 ```shell
 a robot --res 1024:768 --cfg 5 --steps 40
 ```
+
+</details>
 
 The refs are stored per handler.
 
