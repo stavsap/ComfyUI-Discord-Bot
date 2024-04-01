@@ -67,6 +67,49 @@ Flags can be added to the message to control specific parameters in the prompts 
 | !neg! | if this token present in the message it will split the message into 2 parts. first part will be positive prompt, the second one negative. if not present message is considered positive prompt only. | 
 
 
+## InstantID Face
+
+InstantID workflow. Thanks to https://github.com/cubiq/ComfyUI_InstantID
+
+Source image is given as a url via --url flag.
+
+Requires: 
+
+- https://github.com/glowcone/comfyui-load-image-from-url custom node to be able to load images from urls.
+- https://github.com/cubiq/ComfyUI_InstantID - Instant ID nodes.
+
+#### Supported Flags:
+
+Flags can be added to the message to control specific parameters in the prompts that will be passed to comfy. The flags and their values will be omitted from the final prompts.
+
+| Flag                  | Description                                                     | Default                                                                           |
+|-----------------------|-----------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| --res                 | resolution in format of `height:width`                          | 768x768                                                                           |
+| --batch               | the amount of images to generate `[1:]`                         | 1                                                                                 |
+| --steps               | amount of steps `[1:]`                                          | 20                                                                                |
+| --seed                | seed value `int`                                                | random                                                                            |
+| --cfg                 | CFG value `int`                                                 | 8                                                                                 |
+| --ckpt                | the path to the checkpoint in comfy `models/checkpoint` folder. | sdxl\Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors                            |
+| --sampler             | the sampler to use `supported name`                             | dpmpp_2m                                                                          |
+| --schd                | the scheduler to use `supported name`                           | normal                                                                            |
+| --url                 | the url to source image `valid url`                             | https://raw.githubusercontent.com/stavsap/ComfyUI-Discord-Bot/19b050360d36e076c33460dd327587561d23adcc/.meta/man.png |
+| --denoise             | the denoise to use `[0:1]`                                      | 0.87                                                                              |
+| --instant_id_model    | the model from `models/instantid`                               | ip-adapter.bin                                                                    |
+| --instant_id_provider | the provider `CPU \| CUDA \| ROCM`                              | CPU                                                                             |
+| --instant_id_weight   | the weight to use `[0:1]`                                       | 0.8                                                                               |
+| --instant_id_start_at | the start at to use `[0:1]`                                     | 0                                                                                 |
+| --instant_id_end_at   | the end at to use `[0:1]`                                       | 1                                                                                 |
+| --control_net_model   | the control net model from `models/controlnet`                  | diffusion_pytorch_model.safetensors                                               |
+#### Special tokens
+
+| Token | Description                                                                                                                                                                                          |
+|-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| !neg! | if this token present in the message it will split the message into 2 parts. first part will be positive prompt, the second one negative. if not present message is considered positive prompt only. | 
+
+## InstantID Face + IP Adapter 
+
+TBD
+
 # Custom Handlers
 
 The bot supports in loading dynamically handlers from the `custom_handlers` folder. just put your handlers module in similar way to the built-in [handlers](../handlers/) module.
