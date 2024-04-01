@@ -287,18 +287,6 @@ INSTANT_ID_BASIC = """
       "title": "Load InstantID Model"
     }
   },
-  "15": {
-    "inputs": {
-      "images": [
-        "8",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
   "16": {
     "inputs": {
       "control_net_name": "diffusion_pytorch_model.safetensors"
