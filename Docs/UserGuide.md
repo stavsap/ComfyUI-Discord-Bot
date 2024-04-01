@@ -71,7 +71,11 @@ View information regarding the current selected workflow handler.
 
 ### /handler-context
 
-Set and View the handler constant context.
+Set and View the handler constant context. Upon submit all data will be persisted per handler.
+
+the final message that will be constructed to be passed to the handler as follows:
+
+{**Flags**}{**Prefix**}`{/q meesage}`{**Postfix**}
 
 #### Prefix
 
@@ -80,6 +84,17 @@ This will set a constant prefix that will be appended to the beginning of the su
 #### Postfix
 
 This will set a constant Postfix that will be appended to the end of  submitted message when using the /q {message} command.
+
+#### Flags
+
+This will set the flags for the handler (can be any other text), the flags section will be appended to the begging of the message after the prefix is appended, resulting that the flags are the first to parse, so other section can override their values if present.
+
+<details>
+  <summary>Example</summary>
+
+![pic](../.meta/handler-context.png)
+
+</details>
 
 ### /checkpoints
 
