@@ -7,7 +7,7 @@ TODO description
 
 1. [Txt 2 Image](#text-2-image)
 2. [Image 2 Image](#image-2-image)
-2. [InstantID Face](#instantid-face)
+3. [InstantID Face](#instantid-face)
 
 ## Text 2 Image
 
