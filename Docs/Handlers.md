@@ -70,7 +70,7 @@ Flags can be added to the message to control specific parameters in the prompts 
 
 ## InstantID Face
 
-InstantID workflow. Thanks to https://github.com/cubiq/ComfyUI_InstantID
+InstantID workflow. Thanks to **matt3o**! https://github.com/cubiq/ComfyUI_InstantID.
 
 Source image is given as a url via --url flag.
 
