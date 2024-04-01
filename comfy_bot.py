@@ -88,7 +88,8 @@ async def handle_prompt_queue_result(queue_prompt_result: QueuePromptResult):
     prompt_handler = queue_prompt_result.prompt_handler
     try:
         # TODO handle describe more then 2000 chars...
-        await ctx.respond("Completed prompt: {}\n{}".format(prompt_id, prompt_handler.describe(queue_prompt_result.prompt)))
+        await ctx.respond(
+            "Completed prompt: {}\n{}".format(prompt_id, prompt_handler.describe(queue_prompt_result.prompt)))
         for node_id, image_list in images.items():
             imgs = [File(filename=str(uuid.uuid4()) + ".png", fp=io.BytesIO(image_data)) for image_data in image_list]
             for img in imgs:
@@ -96,6 +97,7 @@ async def handle_prompt_queue_result(queue_prompt_result: QueuePromptResult):
     except Exception as e:
         logger.error(e)
         await ctx.respond("error while processing images")
+
 
 @bot.slash_command(name="q", description="Submit a prompt to current workflow handler")
 async def q(ctx: discord.commands.context.ApplicationContext, message):
@@ -147,60 +149,6 @@ async def ref_view(ctx):
     await ctx.respond(respond)
 
 
-@bot.slash_command(name="prefix", description="Set a prefix for the prompt")
-async def set_prefix(ctx, prefix):
-    ComfyHandlersContext().set_prefix(ComfyHandlersManager().get_current_handler().key(), prefix)
-    await ctx.respond("```Prefix set!```")
-
-
-@bot.slash_command(name="postfix", description="Set a postfix for the prompt")
-async def set_postfix(ctx, postfix):
-    ComfyHandlersContext().set_postfix(ComfyHandlersManager().get_current_handler().key(), postfix)
-    await ctx.respond("```Postfix set!```")
-
-
-@bot.slash_command(name="prefix-del", description="Remove the current prompt prefix")
-async def remove_prefix(ctx):
-    ComfyHandlersContext().remove_prefix(ComfyHandlersManager().get_current_handler().key())
-    await ctx.respond("```Prefix removed```")
-
-
-@bot.slash_command(name="postfix-del", description="Remove the current prompt postfix")
-async def remove_postfix(ctx):
-    ComfyHandlersContext().remove_postfix(ComfyHandlersManager().get_current_handler().key())
-    await ctx.respond("```Postfix removed```")
-
-
-@bot.slash_command(name="prefix-view", description="View the current prompt prefix")
-async def prefix_view(ctx):
-    res = ComfyHandlersContext().get_prefix(ComfyHandlersManager().get_current_handler().key())
-    if res is None or len(res) == 0:
-        res = "```no prefix set!```"
-    await ctx.respond(res)
-
-
-@bot.slash_command(name="postfix-view", description="View the current prompt postfix")
-async def postfix_view(ctx):
-    res = ComfyHandlersContext().get_postfix(ComfyHandlersManager().get_current_handler().key())
-    if res is None or len(res) == 0:
-        res = "```no postfix set!```"
-    await ctx.respond(res)
-
-
-@bot.slash_command(name="handler-info", description="Information about the current workflow handler")
-async def handler_info(ctx):
-    prompt_handler = ComfyHandlersManager().get_current_handler()
-    await ctx.respond(prompt_handler.info())
-
-
-@bot.slash_command(name="checkpoints", description="List of all supported checkpoints")
-async def checkpoints(ctx: discord.commands.context.ApplicationContext):
-    response = "Supported Checkpoints:\n\n"
-    for checkpoint in ComfyClient().get_checkpoints():
-        response += checkpoint + "\n\n"
-    await ctx.respond(response)
-
-
 async def set_handler(interaction):
     ComfyHandlersManager().set_current_handler(interaction.custom_id)
     await interaction.response.send_message("Handler [{}] selected\n\n{}".format(interaction.custom_id,
@@ -218,18 +166,11 @@ async def handlers(ctx):
     await ctx.send("", view=view)
 
 
+@bot.slash_command(name="handler-info", description="Information about the current workflow handler")
+async def handler_info(ctx):
+    prompt_handler = ComfyHandlersManager().get_current_handler()
+    await ctx.respond(prompt_handler.info())
 
-
-@bot.slash_command(name="q-status", description="View queue status")
-async def queue_status(ctx):
-    queue_data = ComfyClient().get_queue()
-    ids = ""
-    for data in queue_data['queue_running']:
-        ids = "{}\n{}".format(ids, data[1])
-    for data in queue_data['queue_pending']:
-        ids = "{}\n{}".format(ids, data[1])
-    response = "{}\n{}".format(ComfyClient().get_prompt(), ids)
-    await ctx.respond(response)
 
 class HandlerContextModal(discord.ui.Modal):
     def __init__(self, *args, **kwargs) -> None:
@@ -243,6 +184,8 @@ class HandlerContextModal(discord.ui.Modal):
         handler_ctx.set_postfix(current_handler_key, self.children[1].value)
 
         await interaction.response.send_message("`all set!`")
+
+
 @bot.slash_command(name="handler-context", description="Set handler constant context")
 async def handler_context(ctx):
     handler_ctx = ComfyHandlersContext()
@@ -262,6 +205,27 @@ async def handler_context(ctx):
                                         value=handler_ctx.get_postfix(current_handler_key),
                                         style=discord.InputTextStyle.long))
     await ctx.send_modal(modal)
+
+
+@bot.slash_command(name="checkpoints", description="List of all supported checkpoints")
+async def checkpoints(ctx: discord.commands.context.ApplicationContext):
+    response = "Supported Checkpoints:\n\n"
+    for checkpoint in ComfyClient().get_checkpoints():
+        response += checkpoint + "\n\n"
+    await ctx.respond(response)
+
+
+@bot.slash_command(name="q-status", description="View queue status")
+async def queue_status(ctx):
+    queue_data = ComfyClient().get_queue()
+    ids = ""
+    for data in queue_data['queue_running']:
+        ids = "{}\n{}".format(ids, data[1])
+    for data in queue_data['queue_pending']:
+        ids = "{}\n{}".format(ids, data[1])
+    response = "{}\n{}".format(ComfyClient().get_prompt(), ids)
+    await ctx.respond(response)
+
 
 if __name__ == '__main__':
     token = os.getenv('DISCORD_BOT_API_TOKEN')

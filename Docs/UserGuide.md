@@ -10,9 +10,13 @@ Just type '/' and you should be able to see the list of all commands under you B
 
 Queue a workflow of the current handler with a given message. The message should contain all the required information and syntax for the current handler. 
 
-To make efficient prompting without the need to deal with long repeating prompts check the [prefix](#prefix-prefix), [postfix](#postfix-postfix) and [refs](#ref-set-ref-value) features.
+To make efficient prompting without the need to deal with long repeating prompts check the [handler-context](#handler-context) command to set prefix or postfix and [refs](#ref-set-ref-value) features.
 
 The message will be processed by appending a prefix if set to the beginning of the message then appending the postfix if set to the end of the message, then the message`s refs will be replaced with their corresponding value.
+
+### /q-status
+
+View the current queue information, the running and the pending prompt ids.
 
 ### /ref-set {ref} {value}
 
@@ -57,34 +61,6 @@ Remove a certain ref by name.
 
 View all current ref tuples.
 
-### /prefix {prefix}
-
-This will append a constant prefix in the beginning of a given message, prefix can include refs, and they will be handled accordingly. 
-
-The prefix is stored per handler.
-
-### /prefix-del
-
-Will remove the current prefix if any set.
-
-### /prefix-view 
-
-Will display the current prefix if any set.
-
-### /postfix {postfix}
-
-This will append a constant postfix in the end of a given message, postfix can include refs, and they will be handled accordingly. 
-
-The postfix is stored per handler.
-
-### /postfix-del
-
-Will remove the current postfix if any set.
-
-### /postfix-view 
-
-Will display the current postfix if any set.
-
 ### /handlers
 
 View all supported handler, the list is buttons, pressing a button will set the current handler as selected.
@@ -93,13 +69,21 @@ View all supported handler, the list is buttons, pressing a button will set the 
 
 View information regarding the current selected workflow handler.
 
+### /handler-context
+
+Set and View the handler constant context.
+
+#### Prefix
+
+This will set a constant prefix that will be appended to the beginning of the submitted message when using the /q {message} command.
+
+#### Postfix
+
+This will set a constant Postfix that will be appended to the end of  submitted message when using the /q {message} command.
+
 ### /checkpoints
 
 View all the checkpoints currently set in comfy server.
-
-### /q-status
-
-View the current queue information and the running and the pending prompt ids.
 
 ## Uploading Images
 
