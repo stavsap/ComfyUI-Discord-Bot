@@ -20,6 +20,12 @@ logger = get_logger("ComfyBOT")
 
 def process_message(message):
     # TODO optimize if possible.
+    handler_ctx = ComfyHandlersContext()
+    current_handler_key = ComfyHandlersManager().get_current_handler().key()
+    flags = handler_ctx.get_flags(current_handler_key)
+    if flags is not None:
+        message = "{} {}".format(flags, message)
+
     prefix = ComfyHandlersContext().get_prefix(ComfyHandlersManager().get_current_handler().key())
     postfix = ComfyHandlersContext().get_postfix(ComfyHandlersManager().get_current_handler().key())
     if prefix is not None:
@@ -182,7 +188,7 @@ class HandlerContextModal(discord.ui.Modal):
 
         handler_ctx.set_prefix(current_handler_key, self.children[0].value)
         handler_ctx.set_postfix(current_handler_key, self.children[1].value)
-
+        handler_ctx.set_flags(current_handler_key, self.children[2].value)
         await interaction.response.send_message("`all set!`")
 
 
@@ -194,6 +200,11 @@ async def handler_context(ctx):
 
     modal = HandlerContextModal(title=title)
 
+    flags = handler_ctx.get_flags(current_handler_key)
+
+    if flags is None:
+        flags = ComfyHandlersManager().get_current_handler().default_flags()
+
     modal.add_item(discord.ui.InputText(label="Prefix",
                                         placeholder="Set message prefix, this will be appended in the beginning of the /q {message}",
                                         required=False,
@@ -203,6 +214,11 @@ async def handler_context(ctx):
                                         placeholder="Set message postfix, this will be appended in the end of the /q {message}",
                                         required=False,
                                         value=handler_ctx.get_postfix(current_handler_key),
+                                        style=discord.InputTextStyle.long))
+    modal.add_item(discord.ui.InputText(label="Flags",
+                                        placeholder="Set constant flags, this will be appended in the beginning of the /q {message}, before the prefix",
+                                        required=False,
+                                        value= flags,
                                         style=discord.InputTextStyle.long))
     await ctx.send_modal(modal)
 

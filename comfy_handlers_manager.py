@@ -79,16 +79,30 @@ class ComfyHandlersContext(object):
         return res
 
     def set_prefix(self, handler_key, prefix):
-        self._db.create_or_update_handler_fixes(handler_key,"prefix", prefix)
+        self._db.create_or_update_handler_fixes(handler_key, "prefix", prefix)
 
     def set_postfix(self, handler_key, postfix):
-        self._db.create_or_update_handler_fixes(handler_key,"postfix", postfix)
+        self._db.create_or_update_handler_fixes(handler_key, "postfix", postfix)
 
     def remove_prefix(self, handler_key):
         self._db.remove_handler_fixes_by_type(handler_key, "prefix")
 
     def remove_postfix(self, handler_key):
         self._db.remove_handler_fixes_by_type(handler_key, "postfix")
+
+    def set_flags(self, handler_key, flags):
+        self._db.create_or_update_handler_fixes(handler_key, "flags", flags)
+
+    def get_flags(self, handler_key):
+        res = None
+        for fix in self._db.get_all_handler_fixes(handler_key):
+            if fix.type == "flags":
+                res = fix.value
+                break
+        return res
+
+    def remove_flags(self, handler_key):
+        self._db.remove_handler_fixes_by_type(handler_key, "flags")
 
     def get_prefix(self, handler_key):
         res = None
@@ -105,6 +119,3 @@ class ComfyHandlersContext(object):
                 res = fix.value
                 break
         return res
-
-
-

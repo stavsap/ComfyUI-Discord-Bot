@@ -168,6 +168,25 @@ scheduler: {scheduler}
     def key(self):
         return "Txt2Img"
 
+    def default_flags(self):
+        prompt = json.loads(self.workflow_as_text)
+        steps = str(self._flags_handler.get_value("steps", prompt))
+        cfg = str(self._flags_handler.get_value("cfg", prompt))
+        checkpoint = self._flags_handler.get_value("ckpt", prompt)
+        batch = str(self._flags_handler.get_value("batch", prompt))
+        res = ':'.join([str(num) for num in self._flags_handler.get_values("res", prompt)])
+        sampler = self._flags_handler.get_value("sampler", prompt)
+        scheduler = self._flags_handler.get_value("schd", prompt)
+        return f'''
+--res {res}
+--cfg {cfg}
+--steps {steps}
+--batch {batch}
+--ckpt {checkpoint}
+--schd {scheduler}
+--sampler {sampler}
+'''
+
 
 class ImgToImageHandler:
     _neg_token = '!neg!'
@@ -268,6 +287,24 @@ url: {url}
     def key(self):
         return "Img2Img"
 
+    def default_flags(self):
+        prompt = json.loads(self.workflow_as_text)
+        steps = str(self._flags_handler.get_value("steps", prompt))
+        cfg = str(self._flags_handler.get_value("cfg", prompt))
+        checkpoint = self._flags_handler.get_value("ckpt", prompt)
+        sampler = self._flags_handler.get_value("sampler", prompt)
+        scheduler = self._flags_handler.get_value("schd", prompt)
+        url = self._flags_handler.get_value("url", prompt)
+        denoise = str(self._flags_handler.get_value("denoise", prompt))
+        return f'''
+--cfg {cfg}
+--steps {steps}
+--denoise {denoise}
+--ckpt {checkpoint}
+--schd {scheduler}
+--sampler {sampler}
+--url {url}
+'''
 
 class InstantIDFaceHandler:
     _neg_token = '!neg!'
@@ -419,3 +456,39 @@ url: {url}
 
     def key(self):
         return "InstIDFace"
+
+    def default_flags(self):
+        prompt = json.loads(self.workflow_as_text)
+        batch = str(self._flags_handler.get_value("batch", prompt))
+        res = ':'.join([str(num) for num in self._flags_handler.get_values("res", prompt)])
+        steps = str(self._flags_handler.get_value("steps", prompt))
+        cfg = str(self._flags_handler.get_value("cfg", prompt))
+        checkpoint = self._flags_handler.get_value("ckpt", prompt)
+        sampler = self._flags_handler.get_value("sampler", prompt)
+        scheduler = self._flags_handler.get_value("schd", prompt)
+        url = self._flags_handler.get_value("url", prompt)
+        denoise = str(self._flags_handler.get_value("denoise", prompt))
+        instant_id_model = str(self._flags_handler.get_value("instant_id_model", prompt))
+        instant_id_provider = str(self._flags_handler.get_value("instant_id_provider", prompt))
+        instant_id_weight = str(self._flags_handler.get_value("instant_id_weight", prompt))
+        instant_id_start_at = str(self._flags_handler.get_value("instant_id_start_at", prompt))
+        instant_id_end_at = str(self._flags_handler.get_value("instant_id_end_at", prompt))
+        control_net_model = str(self._flags_handler.get_value("control_net_model", prompt))
+        return f'''
+--res {res}
+--cfg {cfg}
+--batch {batch}
+--steps {steps}
+--denoise {denoise}
+--ckpt {checkpoint}
+--schd {scheduler}
+--sampler {sampler}
+--instant_id_model {instant_id_model}
+--instant_id_provider {instant_id_provider}
+--instant_id_provider {instant_id_provider}
+--instant_id_weight {instant_id_weight}
+--instant_id_start_at {instant_id_start_at}
+--instant_id_end_at {instant_id_end_at}
+--control_net_model {control_net_model}
+--url {url}
+'''
