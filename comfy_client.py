@@ -151,12 +151,3 @@ class ComfyClient(object):
                     output_images[current_node] = images_output
 
         return output_images
-
-# Debug usage.
-# Commented out code to display the output images:
-# for node_id in images:
-#     for image_data in images[node_id]:
-#         from PIL import Image
-#         import io
-#         image = Image.open(io.BytesIO(image_data))
-#         image.show()
