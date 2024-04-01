@@ -165,7 +165,12 @@ async def set_handler(interaction):
 async def handlers(ctx):
     view = View()
     for handler in ComfyHandlersManager().get_handlers():
-        btn = Button(label=handler, style=discord.ButtonStyle.green, custom_id=handler)
+        style = discord.ButtonStyle.gray
+        disabled = False
+        if handler == ComfyHandlersManager().get_current_handler().key():
+            style = discord.ButtonStyle.green
+            disabled = True
+        btn = Button(label=handler, style=style, custom_id=handler, disabled=disabled)
         btn.callback = set_handler
         view.add_item(btn)
     await ctx.respond("Select handler:")
