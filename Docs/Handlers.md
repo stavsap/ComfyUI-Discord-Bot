@@ -129,6 +129,7 @@ This node should input the final images of the workflow, sending images to this 
 ![pic](../.meta/save-to-socket-node.png)
 
 ```json
+{
   "save_image_websocket_node": {
     "inputs": {
       "images": [
@@ -141,4 +142,5 @@ This node should input the final images of the workflow, sending images to this 
       "title": "SaveImageWebsocket"
     }
   }
+}
 ```
