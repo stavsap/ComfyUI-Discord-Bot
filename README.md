@@ -30,7 +30,7 @@ To run the bot after creating and obtaining the bot Token, set environment varia
 | Env Var | Description                                     | Default        | Required? |
 |---------|-------------------------------------------------|----------------|-----------|
 | DISCORD_BOT_API_TOKEN  | A token to access Discord API                   |                | YES     |
-| COMFY_UI_ADDRESS | The host address of comfy ui server `host:port` | 127.0.0.1:8188 | NO      |
+| COMFY_SERVER_ADDRESS | The host address of comfy ui server `host:port` | 127.0.0.1:8188 | NO      |
 
 # Contribution
 

@@ -35,7 +35,7 @@ class ComfyClient(object):
         self._protocol = "http"
         self._socket_protocol = "ws"
         self._logger = get_logger("ComfyClient")
-        self._comfy_url = os.getenv('COMFY_UI_ADDRESS', '127.0.0.1:8188')
+        self._comfy_url = os.getenv('COMFY_SERVER_ADDRESS', '127.0.0.1:8188')
         self._websocket = None
         self._client_id = str(uuid.uuid4())
         self._executor = ThreadPoolExecutor(max_workers=1)
@@ -43,7 +43,7 @@ class ComfyClient(object):
         self._callbacks = []
         self._prompt_ids = []
         self._logger.info(
-            "comfy client created with client id [{}] and url [{}].".format(self._client_id, self._comfy_url))
+            "comfy client created with client id [{}] and comfy server at [{}].".format(self._client_id, self._comfy_url))
 
     def _connect_websocket(self):
         self._websocket = websocket.WebSocket()
