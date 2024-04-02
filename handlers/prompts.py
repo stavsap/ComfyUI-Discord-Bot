@@ -83,7 +83,20 @@ TXT_TO_IMAGE_PROMPT = """
                 0
             ]
         }
+    },
+    "save_image": {
+    "inputs": {
+      "filename_prefix": "comfy-bot-txt-2-img-",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
     }
+  }
 }
 """
 
@@ -205,6 +218,19 @@ IMG_TO_IMG_PROMPT = """
     "class_type": "SaveImageWebsocket",
     "_meta": {
       "title": "SaveImageWebsocket"
+    }
+  },
+   "save_image": {
+    "inputs": {
+      "filename_prefix": "comfy-bot-img-2-img-",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
     }
   }
 }
@@ -389,6 +415,19 @@ INSTANT_ID_BASIC = """
     "class_type": "SaveImageWebsocket",
     "_meta": {
       "title": "SaveImageWebsocket"
+    }
+  },
+   "save_image": {
+    "inputs": {
+      "filename_prefix": "comfy-bot-instant-id-basic-",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
     }
   }
 }
@@ -637,6 +676,19 @@ INSTANT_ID_IP_ADAPTER ="""
     "class_type": "SaveImageWebsocket",
     "_meta": {
       "title": "SaveImageWebsocket"
+    }
+  },
+   "save_image": {
+    "inputs": {
+      "filename_prefix": "comfy-bot-instant-id-ip-adapter-face-",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
     }
   }
 }

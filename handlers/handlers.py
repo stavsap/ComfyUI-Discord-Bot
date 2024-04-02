@@ -9,8 +9,26 @@ def identity(x):
     return [x]
 
 
+def rev_identity(x):
+    return x
+
+
 def res_spliter(x):
     return x.split(':')
+
+
+def mapped_value(dict):
+    def func(x):
+        return [dict[x]]
+
+    return func
+
+
+def rev_mapped_value(dict):
+    def func(x):
+        return dict[x]
+
+    return func
 
 
 class FlagsHandler:
@@ -19,12 +37,15 @@ class FlagsHandler:
         self._paths_by_flag = {}
         self._funcs_by_flag = {}
         self._descs_by_flag = {}
+        self._fetchs_by_flag = {}
         self.FLAG_REGEX = regex
 
-    def set_flags(self, flag_name: str, workflow_paths, description: str = None, convert_func=identity):
+    def set_flags(self, flag_name: str, workflow_paths, description: str = None, convert_func=identity,
+                  fetch_func=rev_identity):
         self._paths_by_flag[flag_name] = workflow_paths
         self._funcs_by_flag[flag_name] = convert_func
         self._descs_by_flag[flag_name] = description
+        self._fetchs_by_flag[flag_name] = fetch_func
 
     def get_description(self, flag_name: str) -> str:
         return self._descs_by_flag[flag_name]
@@ -40,13 +61,13 @@ class FlagsHandler:
         results = []
         index = 0
         for path in self._paths_by_flag[flag_name]:
-            results.append(self._get_value(path, prompt))
+            results.append(self._get_value(flag_name, path, prompt))
             index += 1
         return results
 
     def get_value(self, flag_name: str, prompt):
         for path in self._paths_by_flag[flag_name]:
-            return self._get_value(path, prompt)
+            return self._get_value(flag_name, path, prompt)
         return None
 
     def clean_from_flags(self, text):
@@ -61,11 +82,11 @@ class FlagsHandler:
             ref = ref[key]
         ref[path[-1]] = value
 
-    def _get_value(self, path, prompt):
+    def _get_value(self, flag, path, prompt):
         ref = prompt
         for key in path[:-1]:
             ref = ref[key]
-        return ref[path[-1]]
+        return self._fetchs_by_flag[flag](ref[path[-1]])
 
 
 class TxtToImageHandler:
@@ -306,6 +327,7 @@ url: {url}
 --url {url}
 '''
 
+
 class InstantIDFaceHandler:
     _neg_token = '!neg!'
 
@@ -522,15 +544,64 @@ class InstantIDIpAdapterFaceHandler:
 
         self._flags_handler.set_flags("control_net_model", [["16", "inputs", "control_net_name"]])
 
-
         self._flags_handler.set_flags("ip_encoder_weight", [["72", "inputs", "weight"]])
-        self._flags_handler.set_flags("ip_unified_preset", [["73", "inputs", "preset"]])
+
+        dict = {}
+        dict["light"] = "LIGHT - SD1.5 only (low strength)"
+        dict["std"] = "STANDARD (medium strength)"
+        dict["vit-g"] = "VIT-G (medium strength)"
+        dict["plus"] = "PLUS (high strength)"
+        dict["plus_face"] = "PLUS FACE (portraits)"
+        dict["full_face"] = "FULL FACE - SD1.5 only (portraits stronger)"
+
+        rev_dict = {}
+
+        for key, value in dict.items():
+            rev_dict[value] = key
+
+        self._flags_handler.set_flags("ip_unified_preset", [["73", "inputs", "preset"]],
+                                      convert_func=mapped_value(dict),
+                                      fetch_func=rev_mapped_value(rev_dict))
 
         self._flags_handler.set_flags("ip_embeds_weight", [["74", "inputs", "weight"]])
-        self._flags_handler.set_flags("ip_embeds_weight_type", [["74", "inputs", "weight_type"]])
+
+        dict = {}
+
+        dict["linear"] = "linear"
+        dict["ease_in"] = "ease in"
+        dict["ease_out"] = "ease out"
+        dict["ease_in-out"] = "ease in-out"
+        dict["rev_in-out"] = "reverse in-out"
+        dict["weak_input"] = "weak input"
+        dict["weak_output"] = "weak output"
+        dict["weak_middle"] = "weak middle"
+        dict["strong_middle"] = "strong middle"
+        dict["style_transfer"] = "style transfer (SDXL)"
+
+        rev_dict = {}
+
+        for key, value in dict.items():
+            rev_dict[value] = key
+
+        self._flags_handler.set_flags("ip_embeds_weight_type", [["74", "inputs", "weight_type"]],
+                                      convert_func=mapped_value(dict),
+                                      fetch_func=rev_mapped_value(rev_dict))
+
         self._flags_handler.set_flags("ip_embeds_start_at", [["74", "inputs", "start_at"]])
         self._flags_handler.set_flags("ip_embeds_end_at", [["74", "inputs", "end_at"]])
-        self._flags_handler.set_flags("ip_embeds_embeds_scaling", [["74", "inputs", "embeds_scaling"]])
+
+        dict = {}
+        dict["v"] = "V only"
+        dict["k_v"] = "K+V"
+        dict["k_v_c_pen"] = "K+V w/ C penalty"
+        dict["k_mnv_c_pen"] = "K+mean(V) w/ C penalty"
+
+        for key, value in dict.items():
+            rev_dict[value] = key
+
+        self._flags_handler.set_flags("ip_embeds_embeds_scaling", [["74", "inputs", "embeds_scaling"]],
+                                      convert_func=mapped_value(dict),
+                                      fetch_func=rev_mapped_value(rev_dict))
 
         self._flags_handler.set_flags("positive-prompt", [["39", "inputs", "text"]])
         self._flags_handler.set_flags("negative-prompt", [["40", "inputs", "text"]])
