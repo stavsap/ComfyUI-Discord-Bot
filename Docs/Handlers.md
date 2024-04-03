@@ -8,6 +8,7 @@ TODO description
 1. [Txt 2 Image](#text-2-image)
 2. [Image 2 Image](#image-2-image)
 3. [InstantID Face](#instantid-face)
+4. [InstantID + IP Adapter Face](#instantid-face--ip-adapter-)
 
 ## Text 2 Image
 
