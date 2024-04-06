@@ -86,7 +86,7 @@ TXT_TO_IMAGE_PROMPT = """
     },
     "save_image": {
     "inputs": {
-      "filename_prefix": "comfy-bot-txt-2-img-",
+      "filename_prefix": "%date:yyyy-MM-dd%/comfy-bot-txt-2-img-",
       "images": [
         "8",
         0
@@ -222,7 +222,7 @@ IMG_TO_IMG_PROMPT = """
   },
    "save_image": {
     "inputs": {
-      "filename_prefix": "comfy-bot-img-2-img-",
+      "filename_prefix": "%date:yyyy-MM-dd%/comfy-bot-img-2-img-",
       "images": [
         "8",
         0
@@ -419,7 +419,7 @@ INSTANT_ID_BASIC = """
   },
    "save_image": {
     "inputs": {
-      "filename_prefix": "comfy-bot-instant-id-basic-",
+      "filename_prefix": "%date:yyyy-MM-dd%/comfy-bot-instant-id-basic-",
       "images": [
         "8",
         0
@@ -680,7 +680,7 @@ INSTANT_ID_IP_ADAPTER ="""
   },
    "save_image": {
     "inputs": {
-      "filename_prefix": "comfy-bot-instant-id-ip-adapter-face-",
+      "filename_prefix": "%date:yyyy-MM-dd%/comfy-bot-instant-id-ip-adapter-face-",
       "images": [
         "8",
         0
