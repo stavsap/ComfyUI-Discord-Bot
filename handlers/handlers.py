@@ -1,6 +1,7 @@
 import json
 import random
 import re
+import datetime
 
 from handlers.prompts import TXT_TO_IMAGE_PROMPT, IMG_TO_IMG_PROMPT, INSTANT_ID_BASIC, INSTANT_ID_IP_ADAPTER
 
@@ -104,6 +105,7 @@ class TxtToImageHandler:
         self._flags_handler.set_flags("ckpt", [["4", "inputs", "ckpt_name"]])
         self._flags_handler.set_flags("sampler", [["3", "inputs", "sampler_name"]])
         self._flags_handler.set_flags("schd", [["3", "inputs", "scheduler"]])
+        self._flags_handler.set_flags("filesave", [["save_image", "inputs", "filename_prefix"]])
         self._flags_handler.set_flags("positive-prompt", [["6", "inputs", "text"]])
         self._flags_handler.set_flags("negative-prompt", [["7", "inputs", "text"]])
 
@@ -115,6 +117,10 @@ class TxtToImageHandler:
         positive_prompt = self._flags_handler.clean_from_flags(message)
 
         parts = positive_prompt.split(self._neg_token, maxsplit=1)
+
+        today = datetime.date.today()
+        formatted_date = today.strftime("%Y-%m-%d")
+        self._flags_handler.manipulate_prompt("filesave", "{}/{}".format(formatted_date, "comfy-bot-txt-2-img-"), prompt)
 
         self._flags_handler.manipulate_prompt("positive-prompt", parts[0], prompt)
 
@@ -226,6 +232,9 @@ class ImgToImageHandler:
         self._flags_handler.set_flags("positive-prompt", [["6", "inputs", "text"]])
         self._flags_handler.set_flags("negative-prompt", [["7", "inputs", "text"]])
 
+        self._flags_handler.set_flags("filesave", [["save_image", "inputs", "filename_prefix"]])
+
+
     def handle(self, message):
         prompt = json.loads(self.workflow_as_text)
 
@@ -234,6 +243,10 @@ class ImgToImageHandler:
         positive_prompt = self._flags_handler.clean_from_flags(message)
 
         parts = positive_prompt.split(self._neg_token, maxsplit=1)
+
+        today = datetime.date.today()
+        formatted_date = today.strftime("%Y-%m-%d")
+        self._flags_handler.manipulate_prompt("filesave", "{}/{}".format(formatted_date, "comfy-bot-img-2-img-"), prompt)
 
         self._flags_handler.manipulate_prompt("positive-prompt", parts[0], prompt)
 
@@ -358,6 +371,9 @@ class InstantIDFaceHandler:
         self._flags_handler.set_flags("positive-prompt", [["39", "inputs", "text"]])
         self._flags_handler.set_flags("negative-prompt", [["40", "inputs", "text"]])
 
+        self._flags_handler.set_flags("filesave", [["save_image", "inputs", "filename_prefix"]])
+
+
     def handle(self, message):
         prompt = json.loads(self.workflow_as_text)
 
@@ -366,6 +382,10 @@ class InstantIDFaceHandler:
         positive_prompt = self._flags_handler.clean_from_flags(message)
 
         parts = positive_prompt.split(self._neg_token, maxsplit=1)
+
+        today = datetime.date.today()
+        formatted_date = today.strftime("%Y-%m-%d")
+        self._flags_handler.manipulate_prompt("filesave", "{}/{}".format(formatted_date, "comfy-bot-instant-id-basic-"), prompt)
 
         self._flags_handler.manipulate_prompt("positive-prompt", parts[0], prompt)
 
@@ -606,6 +626,9 @@ class InstantIDIpAdapterFaceHandler:
         self._flags_handler.set_flags("positive-prompt", [["39", "inputs", "text"]])
         self._flags_handler.set_flags("negative-prompt", [["40", "inputs", "text"]])
 
+        self._flags_handler.set_flags("filesave", [["save_image", "inputs", "filename_prefix"]])
+
+
     def handle(self, message):
         prompt = json.loads(self.workflow_as_text)
 
@@ -614,6 +637,10 @@ class InstantIDIpAdapterFaceHandler:
         positive_prompt = self._flags_handler.clean_from_flags(message)
 
         parts = positive_prompt.split(self._neg_token, maxsplit=1)
+
+        today = datetime.date.today()
+        formatted_date = today.strftime("%Y-%m-%d")
+        self._flags_handler.manipulate_prompt("filesave", "{}/{}".format(formatted_date, "comfy-bot-instant-id-ip-adapter-face-"), prompt)
 
         self._flags_handler.manipulate_prompt("positive-prompt", parts[0], prompt)
 
