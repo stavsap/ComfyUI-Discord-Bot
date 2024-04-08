@@ -9,6 +9,7 @@ TODO description
 2. [Image 2 Image](#image-2-image)
 3. [InstantID Face](#instantid-face)
 4. [InstantID + IP Adapter Face](#instantid-face--ip-adapter-)
+4. [IPAdapter Style](#ip-adapter-style-)
 
 ## Text 2 Image
 
@@ -148,12 +149,50 @@ Flags can be added to the message to control specific parameters in the prompts 
 | --instant_id_end_at     | the end at to use `[0:1]`                                       | 1                                                                                                                    |
 | --control_net_model     | the control net model from `models/controlnet`                  | diffusion_pytorch_model.safetensors                                                                                  |
 | --ip_encoder_weight     | the ip encoder weight                                           | 1                                                                                                                    |
-| --ip_unified_preset     | the ip unified preset                                           | PLUS (high strength)                                                                                                 |
+| --ip_unified_preset     | the ip unified preset                                           | plus                                                                                                                 |
 | --ip_embeds_weight      | the ip embeds weight `[0:1]`                                    | 0.8                                                                                                                  |
 | --ip_embeds_weight_type | the ip embeds weight type `supported names`                     | linear                                                                                                               |
 | --ip_embeds_start_at    | the ip embeds start at `[0:1]`                                  | 0                                                                                                                    |
 | --ip_embeds_end_at      | the ip embeds end at `[0:1]`                                    | 1                                                                                                                    |
-| --ip_embeds_embeds_scaling      | the ip embeds scaling `supported names`                         | V only                                                                                                               |
+| --ip_embeds_embeds_scaling      | the ip embeds scaling `supported names`                         | v                                                                                                                    |
+
+#### Special tokens
+
+| Token | Description                                                                                                                                                                                          |
+|-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| !neg! | if this token present in the message it will split the message into 2 parts. first part will be positive prompt, the second one negative. if not present message is considered positive prompt only. | 
+
+## IP Adapter Style 
+
+IPAdapter style on a given url image. Thanks to **matt3o**! [IP Adapter](https://github.com/cubiq/ComfyUI_IPAdapter_plus).
+
+Source image is given as a url via `--url` flag.
+
+#### Requires: 
+
+- https://github.com/glowcone/comfyui-load-image-from-url custom node to be able to load images from urls.
+- https://github.com/cubiq/ComfyUI_IPAdapter_plus - IP Adapters nodes.
+
+#### Supported Flags:
+
+Flags can be added to the message to control specific parameters in the prompts that will be passed to comfy. The flags and their values will be omitted from the final prompts.
+
+| Flag                 | Description                                                    | Default                                                                           |
+|----------------------|----------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| --res                | resolution in format of `height:width`                         | 768:768                                                                         |
+| --batch              | the amount of images to generate `[1:]`                        | 1                                                                                 |
+| --steps              | amount of steps `[1:]`                                         | 20                                                                                |
+| --seed               | seed value `int`                                               | random                                                                            |
+| --cfg                | CFG value `int`                                                | 8                                                                                 |
+| --ckpt               | the path to the checkpoint in comfy `models/checkpoint` folder. | sdxl\Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors                            |
+| --sampler            | the sampler to use `supported name`                            | euler                                                                             |
+| --schd               | the scheduler to use `supported name`                          | normal                                                                            |
+| --url                | the url to source image `valid url`                            | https://raw.githubusercontent.com/stavsap/ComfyUI-Discord-Bot/main/.meta/king.jpg |
+| --denoise            | the denoise to use `[0:1]`                                     | 1                                                                                 |
+| --ip_unified_preset     | the ip unified preset                                           | plus                                                                                                 |
+| --ip_adapter_weight  | the ip embeds weight `[0:]`                                    | 1                                                                                 |
+| --ip_adapter_start_at | the ip embeds start at `[0:1]`                                 | 0                                                                                 |
+| --ip_adapter_end_at   | the ip embeds end at `[0:1]`                                   | 1                                                                                 |
 
 #### Special tokens
 

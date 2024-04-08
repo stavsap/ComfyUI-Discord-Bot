@@ -3,7 +3,8 @@ import random
 import re
 import datetime
 
-from handlers.prompts import TXT_TO_IMAGE_PROMPT, IMG_TO_IMG_PROMPT, INSTANT_ID_BASIC, INSTANT_ID_IP_ADAPTER
+from handlers.prompts import TXT_TO_IMAGE_PROMPT, IMG_TO_IMG_PROMPT, INSTANT_ID_BASIC, INSTANT_ID_IP_ADAPTER, \
+    IP_ADAPTER_STYLE
 
 
 def identity(x):
@@ -852,4 +853,201 @@ surl: {surl}
 --ip_embeds_embeds_scaling {ip_embeds_embeds_scaling}
 --url {url}
 --surl {surl}
+'''
+
+
+class IPAdapterStyleHandler:
+    _neg_token = '!neg!'
+
+    def __init__(self):
+        self.workflow_as_text = IP_ADAPTER_STYLE
+        self._flags_handler = FlagsHandler(r'--(\w+)\s+([^\s]+)')
+        self._flags_handler.set_flags("res", [["5", "inputs", "height"], ["5", "inputs", "width"]],
+                                      convert_func=res_spliter)
+        self._flags_handler.set_flags("batch", [["5", "inputs", "batch_size"]])
+        self._flags_handler.set_flags("steps", [["3", "inputs", "steps"]])
+        self._flags_handler.set_flags("seed", [["3", "inputs", "seed"]])
+        self._flags_handler.set_flags("cfg", [["3", "inputs", "cfg"]])
+        self._flags_handler.set_flags("ckpt", [["4", "inputs", "ckpt_name"]])
+        self._flags_handler.set_flags("sampler", [["3", "inputs", "sampler_name"]])
+        self._flags_handler.set_flags("schd", [["3", "inputs", "scheduler"]])
+        self._flags_handler.set_flags("denoise", [["3", "inputs", "denoise"]])
+        self._flags_handler.set_flags("url", [["14", "inputs", "url"]])
+
+        dict = {}
+        dict["light"] = "LIGHT - SD1.5 only (low strength)"
+        dict["std"] = "STANDARD (medium strength)"
+        dict["vit-g"] = "VIT-G (medium strength)"
+        dict["plus"] = "PLUS (high strength)"
+        dict["plus_face"] = "PLUS FACE (portraits)"
+        dict["full_face"] = "FULL FACE - SD1.5 only (portraits stronger)"
+
+        rev_dict = {}
+
+        for key, value in dict.items():
+            rev_dict[value] = key
+
+        self._flags_handler.set_flags("ip_unified_preset", [["11", "inputs", "preset"]],
+                                      convert_func=mapped_value(dict),
+                                      fetch_func=rev_mapped_value(rev_dict))
+
+        self._flags_handler.set_flags("ip_adapter_weight", [["10", "inputs", "weight"]])
+        self._flags_handler.set_flags("ip_adapter_start_at", [["10", "inputs", "start_at"]])
+        self._flags_handler.set_flags("ip_adapter_end_at", [["10", "inputs", "end_at"]])
+
+
+        self._flags_handler.set_flags("positive-prompt", [["6", "inputs", "text"]])
+        self._flags_handler.set_flags("negative-prompt", [["7", "inputs", "text"]])
+
+        self._flags_handler.set_flags("filesave", [["save_image", "inputs", "filename_prefix"]])
+
+
+    def handle(self, message):
+        prompt = json.loads(self.workflow_as_text)
+
+        flags = self._flags_handler.extract_flags(message)
+
+        positive_prompt = self._flags_handler.clean_from_flags(message)
+
+        parts = positive_prompt.split(self._neg_token, maxsplit=1)
+
+        today = datetime.date.today()
+        formatted_date = today.strftime("%Y-%m-%d")
+        self._flags_handler.manipulate_prompt("filesave", "{}/{}".format(formatted_date, "comfy-bot-ip-adapter-style-"), prompt)
+
+        self._flags_handler.manipulate_prompt("positive-prompt", parts[0], prompt)
+
+        if len(parts) > 1:
+            self._flags_handler.manipulate_prompt("negative-prompt", parts[1], prompt)
+
+        self._flags_handler.manipulate_prompt("seed", str(random.randint(1, 2 ** 64)), prompt)
+
+        for flagTuple in flags:
+            self._flags_handler.manipulate_prompt(flagTuple[0], flagTuple[1], prompt)
+            pass
+
+        return prompt
+
+    def describe(self, prompt):
+        batch = str(self._flags_handler.get_value("batch", prompt))
+        res = ':'.join([str(num) for num in self._flags_handler.get_values("res", prompt)])
+        seed = str(self._flags_handler.get_value("seed", prompt))
+        steps = str(self._flags_handler.get_value("steps", prompt))
+        cfg = str(self._flags_handler.get_value("cfg", prompt))
+        checkpoint = self._flags_handler.get_value("ckpt", prompt)
+        sampler = self._flags_handler.get_value("sampler", prompt)
+        scheduler = self._flags_handler.get_value("schd", prompt)
+        url = self._flags_handler.get_value("url", prompt)
+        denoise = str(self._flags_handler.get_value("denoise", prompt))
+        ip_unified_preset = str(self._flags_handler.get_value("ip_unified_preset", prompt))
+        ip_adapter_weight = str(self._flags_handler.get_value("ip_adapter_weight", prompt))
+        ip_adapter_start_at = str(self._flags_handler.get_value("ip_adapter_start_at", prompt))
+        ip_adapter_end_at = str(self._flags_handler.get_value("ip_adapter_end_at", prompt))
+
+        description = f'''
+checkpoint: {checkpoint}
+seed: {seed}
+resolution: {res}
+steps: {steps}
+cfg: {cfg}
+batch: {batch}
+sampler: {sampler}
+scheduler: {scheduler}
+denoise: {denoise}
+ip_unified_preset: {ip_unified_preset}
+ip_adapter_weight: {ip_adapter_weight}
+ip_adapter_start_at: {ip_adapter_start_at}
+ip_adapter_end_at: {ip_adapter_end_at}
+url: {url}
+'''
+        return description
+
+    def info(self):
+        prompt = json.loads(self.workflow_as_text)
+        batch = str(self._flags_handler.get_value("batch", prompt))
+        res = ':'.join([str(num) for num in self._flags_handler.get_values("res", prompt)])
+        steps = str(self._flags_handler.get_value("steps", prompt))
+        cfg = str(self._flags_handler.get_value("cfg", prompt))
+        checkpoint = self._flags_handler.get_value("ckpt", prompt)
+        sampler = self._flags_handler.get_value("sampler", prompt)
+        scheduler = self._flags_handler.get_value("schd", prompt)
+        url = self._flags_handler.get_value("url", prompt)
+        denoise = str(self._flags_handler.get_value("denoise", prompt))
+        ip_adapter_weight = str(self._flags_handler.get_value("ip_adapter_weight", prompt))
+        ip_adapter_start_at = str(self._flags_handler.get_value("ip_adapter_start_at", prompt))
+        ip_adapter_end_at = str(self._flags_handler.get_value("ip_adapter_end_at", prompt))
+        ip_unified_preset = str(self._flags_handler.get_value("ip_unified_preset", prompt))
+
+        return f'''
+# Handler: {self.key()} 
+
+## Supported flags:
+
+**--res**: `height:width`, `{res}` default.
+
+**--cfg**: the CFG value, `{cfg}` default.
+
+**--steps**: # of steps, `{steps}` default.
+
+**--seed**: seed value, `random` default.
+
+**--batch**: the batch size, `{batch}` default.
+
+**--ckpt**: the checkpoint to use, `{checkpoint}` default.
+
+**--schd**: the scheduler to use, `{scheduler}` default.
+
+**--sampler**: the sampler to use, `{sampler}` default.
+
+**--url**: the url to input image, `{url}` default.
+
+**--denoise**: the denoise value, `{denoise}` default.
+
+**--ip_unified_preset**: the ip embeds weight `string`, `{ip_unified_preset}` default.
+
+**--ip_adapter_weight**: the ip embeds weight `[0:]`, `{ip_adapter_weight}` default.
+
+**--ip_adapter_start_at**: the ip embeds start at `[0:1]`, `{ip_adapter_start_at}` default.
+
+**--ip_adapter_end_at**: the ip embeds end at `[0:1]`, `{ip_adapter_end_at}` default.
+
+## Special tokens:
+
+`{self._neg_token}` - will split the message into positive/negative prompts.
+'''
+
+    def key(self):
+        return "IPAdapterStyle"
+
+    def default_flags(self):
+        prompt = json.loads(self.workflow_as_text)
+        batch = str(self._flags_handler.get_value("batch", prompt))
+        res = ':'.join([str(num) for num in self._flags_handler.get_values("res", prompt)])
+        steps = str(self._flags_handler.get_value("steps", prompt))
+        cfg = str(self._flags_handler.get_value("cfg", prompt))
+        checkpoint = self._flags_handler.get_value("ckpt", prompt)
+        sampler = self._flags_handler.get_value("sampler", prompt)
+        scheduler = self._flags_handler.get_value("schd", prompt)
+        url = self._flags_handler.get_value("url", prompt)
+        denoise = str(self._flags_handler.get_value("denoise", prompt))
+        ip_adapter_weight = str(self._flags_handler.get_value("ip_adapter_weight", prompt))
+        ip_adapter_start_at = str(self._flags_handler.get_value("ip_adapter_start_at", prompt))
+        ip_adapter_end_at = str(self._flags_handler.get_value("ip_adapter_end_at", prompt))
+        ip_unified_preset = str(self._flags_handler.get_value("ip_unified_preset", prompt))
+
+
+        return f'''
+--res {res}
+--cfg {cfg}
+--batch {batch}
+--steps {steps}
+--denoise {denoise}
+--ckpt {checkpoint}
+--schd {scheduler}
+--sampler {sampler}
+--ip_unified_preset {ip_unified_preset}
+--ip_adapter_weight {ip_adapter_weight}
+--ip_adapter_start_at {ip_adapter_start_at}
+--ip_adapter_end_at {ip_adapter_end_at}
+--url {url}
 '''
