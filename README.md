@@ -4,6 +4,8 @@ The following is a project for private (can be public) Discord bot integrated wi
 
 Makes usage of [pycord](https://guide.pycord.dev/installation), also check [pycord github](https://github.com/Pycord-Development/pycord/)
 
+For quick installation of ComfyUI with all the required models [check this](https://github.com/stavsap/ComfyUI-Playground).
+
 ## 🚦 WIP 🚦
 
 <a href="https://www.buymeacoffee.com/stavsapq" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="30" width="150"></a>

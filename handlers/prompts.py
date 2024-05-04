@@ -804,7 +804,7 @@ IP_ADAPTER_STYLE ="""
   "10": {
     "inputs": {
       "weight": 1,
-      "weight_type": "style transfer (SDXL)",
+      "weight_type": "style transfer",
       "combine_embeds": "concat",
       "start_at": 0,
       "end_at": 1,
