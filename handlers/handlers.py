@@ -597,7 +597,9 @@ class InstantIDIpAdapterFaceHandler:
         dict["weak_output"] = "weak output"
         dict["weak_middle"] = "weak middle"
         dict["strong_middle"] = "strong middle"
-        dict["style_transfer"] = "style transfer (SDXL)"
+        dict["style_transfer"] = "style transfer"
+        dict["compos"] = "composition"
+        dict["strong_style_transfer"] = "strong style transfer"
 
         rev_dict = {}
 
