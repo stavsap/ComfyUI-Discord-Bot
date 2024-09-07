@@ -4,7 +4,7 @@ import re
 import datetime
 
 from handlers.prompts import TXT_TO_IMAGE_PROMPT, IMG_TO_IMG_PROMPT, INSTANT_ID_BASIC, INSTANT_ID_IP_ADAPTER, \
-    IP_ADAPTER_STYLE
+    IP_ADAPTER_STYLE, FLUX_SCHNELL
 
 
 def identity(x):
@@ -1052,4 +1052,88 @@ url: {url}
 --ip_adapter_start_at {ip_adapter_start_at}
 --ip_adapter_end_at {ip_adapter_end_at}
 --url {url}
+'''
+
+class FluxSchnellHandler:
+
+    def __init__(self):
+        self.workflow_as_text = FLUX_SCHNELL
+        self._flags_handler = FlagsHandler(r'--(\w+)\s+([^\s]+)')
+        self._flags_handler.set_flags("res", [["5", "inputs", "height"], ["5", "inputs", "width"]],
+                                      convert_func=res_spliter)
+        self._flags_handler.set_flags("batch", [["5", "inputs", "batch_size"]])
+        self._flags_handler.set_flags("steps", [["17", "inputs", "steps"]])
+        self._flags_handler.set_flags("seed", [["25", "inputs", "noise_seed"]])
+        self._flags_handler.set_flags("positive-prompt", [["6", "inputs", "text"]])
+        self._flags_handler.set_flags("filesave", [["9", "inputs", "filename_prefix"]])
+
+
+    def handle(self, message):
+        prompt = json.loads(self.workflow_as_text)
+
+        flags = self._flags_handler.extract_flags(message)
+
+        positive_prompt = self._flags_handler.clean_from_flags(message)
+
+        today = datetime.date.today()
+        formatted_date = today.strftime("%Y-%m-%d")
+        self._flags_handler.manipulate_prompt("filesave", "{}/{}".format(formatted_date, "comfy-bot-flux-schnell-"), prompt)
+
+        self._flags_handler.manipulate_prompt("positive-prompt", positive_prompt, prompt)
+
+        self._flags_handler.manipulate_prompt("seed", str(random.randint(1, 2 ** 64)), prompt)
+
+        for flagTuple in flags:
+            self._flags_handler.manipulate_prompt(flagTuple[0], flagTuple[1], prompt)
+            pass
+
+        return prompt
+
+    def describe(self, prompt):
+        batch = str(self._flags_handler.get_value("batch", prompt))
+        res = ':'.join([str(num) for num in self._flags_handler.get_values("res", prompt)])
+        seed = str(self._flags_handler.get_value("seed", prompt))
+        steps = str(self._flags_handler.get_value("steps", prompt))
+
+        description = f'''
+seed: {seed}
+resolution: {res}
+steps: {steps}
+batch: {batch}
+'''
+        return description
+
+    def info(self):
+        prompt = json.loads(self.workflow_as_text)
+        batch = str(self._flags_handler.get_value("batch", prompt))
+        res = ':'.join([str(num) for num in self._flags_handler.get_values("res", prompt)])
+        steps = str(self._flags_handler.get_value("steps", prompt))
+
+        return f'''
+# Handler: {self.key()} 
+
+## Supported flags:
+
+**--res**: `height:width`, `{res}` default.
+
+**--steps**: # of steps, `{steps}` default.
+
+**--seed**: seed value, `random` default.
+
+**--batch**: the batch size, `{batch}` default.
+'''
+
+    def key(self):
+        return "FluxSchnell"
+
+    def default_flags(self):
+        prompt = json.loads(self.workflow_as_text)
+        batch = str(self._flags_handler.get_value("batch", prompt))
+        res = ':'.join([str(num) for num in self._flags_handler.get_values("res", prompt)])
+        steps = str(self._flags_handler.get_value("steps", prompt))
+
+        return f'''
+--res {res}
+--batch {batch}
+--steps {steps}
 '''

@@ -10,6 +10,7 @@ TODO description
 3. [InstantID Face](#instantid-face)
 4. [InstantID + IP Adapter Face](#instantid-face--ip-adapter-)
 4. [IPAdapter Style](#ip-adapter-style-)
+4. [Flux Schnell](#flux-schnell)
 
 ## Text 2 Image
 
@@ -199,6 +200,25 @@ Flags can be added to the message to control specific parameters in the prompts 
 | Token | Description                                                                                                                                                                                          |
 |-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | !neg! | if this token present in the message it will split the message into 2 parts. first part will be positive prompt, the second one negative. if not present message is considered positive prompt only. | 
+
+## Flux Schnell
+
+Basic Flux Schnell workflow.
+
+#### Requires: 
+
+- Flux Models, Clips and Vae.
+- 
+#### Supported Flags:
+
+Flags can be added to the message to control specific parameters in the prompts that will be passed to comfy. The flags and their values will be omitted from the final prompts.
+
+| Flag                 | Description                                                    | Default   |
+|----------------------|----------------------------------------------------------------|-----------|
+| --res                | resolution in format of `height:width`                         | 1024:1024 |
+| --batch              | the amount of images to generate `[1:]`                        | 1         |
+| --steps              | amount of steps `[1:]`                                         | 4         |
+| --seed               | seed value `int`                                               | random    |
 
 
 # Custom Handlers
