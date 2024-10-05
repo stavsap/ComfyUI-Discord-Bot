@@ -16,7 +16,8 @@ class ComfyHandlersManager(object):
 
     def _setup(self):
         self._logger = get_logger("ComfyHandlersManager")
-        self._current_handler_key = "Txt2Img"
+        self._current_handler_key = BotDB().get_global_handle()
+        self._logger.info("current handler key: '{}'.".format(self._current_handler_key))
         self._handlers = {}
         self._import_all_handlers()
 

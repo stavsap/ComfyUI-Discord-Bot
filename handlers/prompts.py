@@ -921,7 +921,7 @@ FLUX_SCHNELL ="""
   },
   "10": {
     "inputs": {
-      "vae_name": "ae.sft"
+      "vae_name": "ae.safetensors"
     },
     "class_type": "VAELoader",
     "_meta": {
@@ -941,7 +941,7 @@ FLUX_SCHNELL ="""
   },
   "12": {
     "inputs": {
-      "unet_name": "flux1-schnell.sft",
+      "unet_name": "flux1-schnell.safetensors",
       "weight_dtype": "fp8_e5m2"
     },
     "class_type": "UNETLoader",

@@ -160,6 +160,7 @@ async def ref_view(ctx):
 
 async def set_handler(interaction):
     ComfyHandlersManager().set_current_handler(interaction.custom_id)
+    BotDB().create_or_update_global_handler(interaction.custom_id)
     await interaction.response.send_message("Handler [{}] selected\n\n{}".format(interaction.custom_id,
                                                                                  ComfyHandlersManager().get_current_handler().info()))
 

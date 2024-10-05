@@ -14,6 +14,13 @@ import os
 class Base(DeclarativeBase):
     pass
 
+class GlobalSettings(Base):
+    __tablename__ = "global_settings"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    current_handler: Mapped[str] = mapped_column(String(256))
+
+    def __repr__(self) -> str:
+        return f"GlobalSettings(id={self.id!r}, current_handler={self.current_handler!r}"
 
 class HandlerReferences(Base):
     __tablename__ = "handler_references"
@@ -55,6 +62,31 @@ class BotDB(object):
         self._engine = create_engine("sqlite:///{}/bot.db".format(DB_PATH), echo=False)
         Base.metadata.create_all(self._engine)
         self._logger.info("Database setup complete.")
+
+    def create_or_update_global_handler(self, handler_key):
+        with Session(self._engine) as session:
+            stmt = (select(GlobalSettings)
+                    .where(GlobalSettings.id.is_(1))
+                    )
+            target = None
+            for handlerRefs in session.scalars(stmt):
+                target = handlerRefs
+            if target is None:
+                target = GlobalSettings(id=1, current_handler=handler_key)
+            target.current_handler = handler_key
+            session.add_all([target])
+            session.commit()
+    def get_global_handle(self):
+        result = []
+        with Session(self._engine) as session:
+            stmt = (select(GlobalSettings)
+                    .where(GlobalSettings.id.is_(1))
+                    )
+            for handlerRefs in session.scalars(stmt):
+                result.append(handlerRefs)
+        if len(result) == 0:
+            return "Txt2Img"
+        return result[0].current_handler
 
     def create_or_update_handler_reference(self, handler_key, ref, value):
         with Session(self._engine) as session:
