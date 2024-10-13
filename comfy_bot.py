@@ -129,7 +129,7 @@ async def q(ctx: discord.commands.context.ApplicationContext, message):
 @bot.slash_command(name="ref-set", description="Set a reference value")
 async def ref_set(ctx, ref, value):
     if '#' in ref:
-        await ctx.respond("\# can`t be in the given ref name!")
+        await ctx.respond("# can`t be in the given ref name!")
         return
     if ' ' in ref:
         await ctx.respond("white space can`t be in the given ref name!")
@@ -141,7 +141,7 @@ async def ref_set(ctx, ref, value):
 @bot.slash_command(name="ref-del", description="Remove a reference")
 async def ref_del(ctx, ref):
     if '#' in ref:
-        await ctx.respond('\# can`t be in the given ref name!')
+        await ctx.respond('# can`t be in the given ref name!')
         return
     if ' ' in ref:
         await ctx.respond("white space can`t be in the given ref name!")
