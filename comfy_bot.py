@@ -6,11 +6,14 @@ from discord import File
 from discord.ext import commands
 import uuid
 from discord.ui import View, Button
+from dotenv import load_dotenv
 
 from bot_db import BotDB
 from comfy_handlers_manager import ComfyHandlersManager, ComfyHandlersContext
 from comfy_client import ComfyClient, QueuePromptResult
 from common import get_logger
+
+load_dotenv()
 
 intents = discord.Intents.default()
 intents.dm_messages = True
@@ -38,7 +41,7 @@ def process_message(message):
     for key, value in refs.items():
         message = message.replace("{} ".format(key), "{} ".format(value))
     message = message[:-1]
-    logger.debug("processed prompt: {}".format(message))
+    logger.debug("processed prompt:\n------------------------\n {}\n------------------------\n".format(message))
     return message
 
 
@@ -59,6 +62,25 @@ async def on_message(message):
 
     if len(message.attachments) > 0:
         for attachment in message.attachments:
+            if any(attachment.filename.lower().endswith(ext) for ext in ['.mp3', '.wav', '.ogg', '.m4a']):
+                try:
+                    # Generate a unique filename
+                    filename = f"{message.author.id}_{attachment.filename}"
+                    filepath = os.path.join(".", filename)
+
+                    # Download and save the file
+                    await attachment.save(filepath)
+
+                    # await message.channel.send(f"✅ Audio file saved: {filename}")
+
+                    play_view = PlayAudioView(filename)
+                    await message.channel.send(
+                        f"Selected: {filename}",
+                        view=play_view
+                    )
+
+                except Exception as e:
+                    await message.channel.send(f"❌ Failed to save audio file: {str(e)}")
             ans = ""
             if attachment.content_type.startswith('image'):
                 ans = "{}\n<{}>".format(ans, attachment.url)
@@ -71,6 +93,19 @@ async def on_message(message):
 
 queue_prompt_results: QueuePromptResult = []
 
+class PlayAudioView(discord.ui.View):
+    def __init__(self, filename: str):
+        super().__init__()
+        self.filename = filename
+
+    @discord.ui.button(label="Play", style=discord.ButtonStyle.green, emoji="▶️")
+    async def play_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Here you would implement the logic to play the audio
+        await interaction.response.send_message(f"Playing {self.filename}...")
+
+    @discord.ui.button(label="Stop", style=discord.ButtonStyle.red, emoji="⏹️")
+    async def stop_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message("Stopped playback")
 
 def handle_queue_prompt_result(ctx, p, prompt_handler, res: QueuePromptResult):
     res.ctx = ctx
@@ -92,6 +127,7 @@ bot.loop.create_task(publish_images())
 async def handle_prompt_queue_result(queue_prompt_result: QueuePromptResult):
     # TODO add error handling
     prompt_id = queue_prompt_result.prompt_id
+    logger.debug(f"handling prompt result, id:[{prompt_id}]")
     ctx = queue_prompt_result.ctx
     images = queue_prompt_result.images
     prompt_handler = queue_prompt_result.prompt_handler
@@ -99,12 +135,16 @@ async def handle_prompt_queue_result(queue_prompt_result: QueuePromptResult):
         # TODO handle describe more then 2000 chars...
         await ctx.respond(
             "Completed prompt: {}\n{}".format(prompt_id, prompt_handler.describe(queue_prompt_result.prompt)))
+        logger.debug(f"handling prompt result, send prompt summary, id:[{prompt_id}]")
         for node_id, image_list in images.items():
             imgs = [File(filename=str(uuid.uuid4()) + ".png", fp=io.BytesIO(image_data)) for image_data in image_list]
-            for img in imgs:
-                await ctx.respond("", file=img)
+            await ctx.respond("", files=imgs)
+            logger.debug(f"handling prompt result, sent images, id:[{prompt_id}]")
+            # for img in imgs:
+            #     await ctx.respond("", files=imgs)
+            #     logger.debug(f"handling prompt result, sent image, id:[{prompt_id}]")
     except Exception as e:
-        logger.error(e)
+        logger.error(f"failed to send results due to: {e}")
         await ctx.respond("error while processing images")
 
 
@@ -164,7 +204,6 @@ async def set_handler(interaction):
     await interaction.response.send_message("Handler [{}] selected\n\n{}".format(interaction.custom_id,
                                                                                  ComfyHandlersManager().get_current_handler().info()))
 
-
 @bot.slash_command(name="handlers", description="List of all handlers")
 async def handlers(ctx):
     view = View()
@@ -185,7 +224,6 @@ async def handlers(ctx):
 async def handler_info(ctx):
     prompt_handler = ComfyHandlersManager().get_current_handler()
     await ctx.respond(prompt_handler.info())
-
 
 class HandlerContextModal(discord.ui.Modal):
     def __init__(self, *args, **kwargs) -> None:

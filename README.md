@@ -33,6 +33,7 @@ To run the bot after creating and obtaining the bot Token, set environment varia
 |---------|-------------------------------------------------|----------------|-----------|
 | DISCORD_BOT_API_TOKEN  | A token to access Discord API                   |                | YES     |
 | COMFY_UI_HOST | The host address of comfy ui server `host:port` | 127.0.0.1:8188 | NO      |
+| COMFY_BOT_LOG_LEVEL | The log level.                                  | INFO           | NO      |
 
 # Docker
 
@@ -42,7 +43,7 @@ To build a docker image:
 docker build -t comfy-discord-bot:1 .
 ```
 
-the database will be in the follwoing path in the container:
+the database will be in the following path in the container:
 
 `/bot/db`
 

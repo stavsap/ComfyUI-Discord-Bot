@@ -56,6 +56,7 @@ class ComfyClient(object):
             if isinstance(out, str):
                 message = json.loads(out)
                 if message['type'] == 'executing':
+                    self._logger.debug(f"message from server: {message}")
                     data = message['data']
                     if len(self._prompt_ids) > 0 and data['prompt_id'] == self._prompt_ids[0]:
                         if data['node'] is None:
