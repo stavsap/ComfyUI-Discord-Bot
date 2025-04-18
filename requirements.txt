@@ -1,3 +1,4 @@
 py-cord==2.6.1
 websocket-client==1.8.0
 SQLAlchemy==2.0.35
+PyYaml

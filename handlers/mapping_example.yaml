@@ -1,0 +1,22 @@
+seed:
+  json_path:
+   - ["17", "inputs", "seed"]
+  data_type: integer
+steps:
+  json_path:
+    - ["17", "inputs", "steps"]
+  data_type: integer
+output_prefix:
+  json_path:
+    - ["25", "inputs", "filename_prefix"]
+  data_type: string
+resolution:
+  json_path:
+    - ["17", "inputs", "height"]
+    - ["17", "inputs", "width"]
+  data_type: string  # Expecting input like "512x768"
+  value_splitter: "x"
+batch_size:
+  json_path:
+    - ["17", "inputs", "batch_size"]
+  data_type: integer
