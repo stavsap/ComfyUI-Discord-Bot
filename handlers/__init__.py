@@ -1,3 +1,2 @@
-from .handlers import TxtToImageHandler, ImgToImageHandler, InstantIDFaceHandler, InstantIDIpAdapterFaceHandler, IPAdapterStyleHandler, FluxSchnellHandler
-
-__all__ = ['TxtToImageHandler', 'ImgToImageHandler', 'InstantIDFaceHandler', 'InstantIDIpAdapterFaceHandler','IPAdapterStyleHandler','FluxSchnellHandler']
+# This file makes handlers a package.
+# All handlers are now loaded via the UniversalHandler engine.
