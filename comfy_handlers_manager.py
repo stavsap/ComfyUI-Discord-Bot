@@ -1,8 +1,8 @@
 import importlib
 import os
-
 from bot_db import BotDB
 from common import get_logger
+from handlers.universal import UniversalHandler
 
 
 class ComfyHandlersManager(object):
@@ -34,13 +34,37 @@ class ComfyHandlersManager(object):
             self._handlers[instance.key()] = instance
             self._logger.info("handler '{}' added.".format(instance.key()))
 
+    def _import_universal_handlers(self, workflows_dir="workflows"):
+        if not os.path.exists(workflows_dir):
+            self._logger.info(f"Workflows directory '{workflows_dir}' not found. Skipping.")
+            return
+
+        self._logger.info(f"Scanning for universal handlers in '{workflows_dir}'...")
+        for root, dirs, files in os.walk(workflows_dir):
+            for file in files:
+                if file.endswith('.yaml') or file.endswith('.yml'):
+                    yaml_path = os.path.join(root, file)
+                    try:
+                        handler = UniversalHandler(yaml_path, workflows_dir)
+                        self._handlers[handler.key()] = handler
+                        self._logger.info(f"Universal handler '{handler.key()}' added from {yaml_path}")
+                    except Exception as e:
+                        self._logger.error(f"Failed to load universal handler from {yaml_path}: {e}")
+
     def _import_all_handlers(self):
         self._logger.info("starting import all handlers...")
         self._import_handlers()
+        
+        # Load custom Python handlers
         path = "custom_handlers"
-        directory_names = [name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))]
-        for name in directory_names:
-            self._import_handlers("{}.{}".format(path, name))
+        if os.path.exists(path):
+            directory_names = [name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))]
+            for name in directory_names:
+                self._import_handlers("{}.{}".format(path, name))
+        
+        # Load Universal Handlers
+        self._import_universal_handlers()
+        
         self._logger.info("all handlers imported.")
 
     def set_current_handler(self, key):
