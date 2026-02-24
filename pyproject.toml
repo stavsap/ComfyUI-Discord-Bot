@@ -1,0 +1,14 @@
+[project]
+name = "comfyui-discord-bot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "py-cord==2.6.1",
+    "websocket-client==1.8.0",
+    "SQLAlchemy==2.0.35",
+    "PyYAML==6.0.2",
+    "requests==2.32.5",
+    "python-dotenv==1.0.1"
+]

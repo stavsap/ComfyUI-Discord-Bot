@@ -292,7 +292,7 @@ async def queue_status(ctx):
 
 if __name__ == '__main__':
     token = os.getenv('DISCORD_BOT_API_TOKEN')
-    os.environ['DISCORD_BOT_API_TOKEN'] = "TOKEN"
+    print(token)
     BotDB()
     ComfyHandlersManager()
     ComfyClient()

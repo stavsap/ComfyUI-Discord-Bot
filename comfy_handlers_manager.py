@@ -1,8 +1,7 @@
-import importlib
 import os
-
 from bot_db import BotDB
 from common import get_logger
+from handlers.universal import UniversalHandler
 
 
 class ComfyHandlersManager(object):
@@ -17,35 +16,37 @@ class ComfyHandlersManager(object):
     def _setup(self):
         self._logger = get_logger("ComfyHandlersManager")
         self._current_handler_key = BotDB().get_global_handle()
-        self._logger.info("current handler key: '{}'.".format(self._current_handler_key))
+        self._logger.info("Current handler key: '{}'.".format(self._current_handler_key))
         self._handlers = {}
         self._import_all_handlers()
 
-    def _import_handlers(self, path=None):
-        modul_name = path
-        if path is None:
-            modul_name = "handlers"
-        self._logger.info("loading module '{}'.".format(modul_name))
-        modul = importlib.import_module(modul_name)
-        items = getattr(modul, "__all__")
+    def _import_universal_handlers(self, workflows_dir="workflows"):
+        if not os.path.exists(workflows_dir):
+            self._logger.info(f"Workflows directory '{workflows_dir}' not found. Skipping.")
+            return
 
-        for item in items:
-            instance = getattr(modul, item)()
-            self._handlers[instance.key()] = instance
-            self._logger.info("handler '{}' added.".format(instance.key()))
+        self._logger.info(f"Scanning for universal handlers in '{workflows_dir}'...")
+        for root, dirs, files in os.walk(workflows_dir):
+            for file in files:
+                if file.endswith('.yaml') or file.endswith('.yml'):
+                    yaml_path = os.path.join(root, file)
+                    try:
+                        handler = UniversalHandler(yaml_path, workflows_dir)
+                        self._handlers[handler.key()] = handler
+                        self._logger.info(f"Universal handler '{handler.key()}' added from {yaml_path}")
+                    except Exception as e:
+                        self._logger.error(f"Failed to load universal handler from {yaml_path}: {e}")
 
     def _import_all_handlers(self):
-        self._logger.info("starting import all handlers...")
-        self._import_handlers()
-        path = "custom_handlers"
-        directory_names = [name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))]
-        for name in directory_names:
-            self._import_handlers("{}.{}".format(path, name))
-        self._logger.info("all handlers imported.")
+        self._logger.info("Starting import all handlers...")
+        
+        self._import_universal_handlers()
+        
+        self._logger.info("All handlers imported.")
 
     def set_current_handler(self, key):
         self._current_handler_key = key
-        self._logger.info("current handler set to: {}".format(self._current_handler_key))
+        self._logger.info("Current handler set to: {}".format(self._current_handler_key))
 
     def get_current_handler(self):
         return self._handlers[self._current_handler_key]
